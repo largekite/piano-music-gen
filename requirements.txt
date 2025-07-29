@@ -1,0 +1,6 @@
+streamlit
+mido
+torch
+torchaudio
+requests
+audiocraft @ git+https://github.com/facebookresearch/audiocraft.git
