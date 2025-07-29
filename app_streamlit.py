@@ -1,6 +1,8 @@
 import streamlit as st
 from mido import Message, MidiFile, MidiTrack
 import tempfile
+import requests
+import os
 
 st.set_page_config(page_title="🎼 Piano Music Generator", layout="centered")
 st.title("🎹 Piano Music Generator (MIDI Only)")
@@ -13,14 +15,18 @@ mood = st.radio("Mood", ["Happy", "Melancholic", "Dreamy", "Intense"])
 duration = st.selectbox("Duration", ["30 sec", "1 min", "2 min"], index=1)
 
 if st.button("🎼 Generate MIDI"):
-    with st.spinner("Contacting backend..."):
-        url = "https://your-username-your-space.hf.space/generate-midi"  # 🔁 CHANGE THIS
+    with st.spinner("Sending request to Hugging Face Gradio backend..."):
         try:
-            response = requests.post(url, json={"prompt": prompt})
-            if response.status_code == 200:
-                st.success("✅ MIDI received!")
-                st.download_button("⬇️ Download MIDI", response.content, file_name="generated.mid")
+            url = "https://huggingface.co/spaces/largekite/music" 
+            response = requests.post(url, json={
+                "data": [prompt]
+            })
+            if response.ok:
+                output_url = response.json()["data"][0]["url"]
+                st.success("✅ MIDI ready!")
+                st.markdown(f"[⬇️ Download MIDI]({output_url})")
             else:
-                st.error(f"Error: {response.status_code}")
+                st.error("❌ API call failed. Check Space status or URL.")
         except Exception as e:
-            st.error(f"Connection failed: {e}")
+            st.error(f"Error: {e}")
+
