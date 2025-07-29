@@ -1,8 +1,8 @@
 import streamlit as st
-from mido import Message, MidiFile, MidiTrack
 import tempfile
 import requests
 import os
+from gradio_client import Client
 
 st.set_page_config(page_title="🎼 Piano Music Generator", layout="centered")
 st.title("🎹 Piano Music Generator (MIDI Only)")
@@ -17,19 +17,13 @@ duration = st.selectbox("Duration", ["30 sec", "1 min", "2 min"], index=1)
 # Input from the user
 prompt = st.text_input("🧠 Describe the music", value="A calm melody in C major")
 
-if st.button("🎼 Generate MIDI"):
-    with st.spinner("Sending request to Hugging Face Gradio backend..."):
+if st.button("Generate MIDI"):
+    with st.spinner("Contacting Hugging Face Space..."):
         try:
-            url = "https://largekite-music.hf.space/run/predict" 
-            response = requests.post(url, json={
-                "data": [prompt]
-            })
-            if response.ok:
-                output_url = response.json()["data"][0]["url"]
-                st.success("✅ MIDI ready!")
-                st.markdown(f"[⬇️ Download MIDI]({output_url})")
-            else:
-                st.error("❌ API call failed. Check Space status or URL.")
+            client = Client("largekite/music")  # ⚠️ This is the Space ID
+            result = client.predict(prompt, api_name="/predict")  # assumes default API
+            st.success("✅ MIDI ready!")
+            st.markdown(f"[⬇️ Download MIDI file]({result})")
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"❌ Failed: {e}")
 
