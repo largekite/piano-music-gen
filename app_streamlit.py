@@ -20,7 +20,7 @@ prompt = st.text_input("🧠 Describe the music", value="A calm melody in C majo
 if st.button("🎼 Generate MIDI"):
     with st.spinner("Sending request to Hugging Face Gradio backend..."):
         try:
-            url = "https://huggingface.co/spaces/largekite/music" 
+            url = "https://largekite-music.hf.space/run/predict" 
             response = requests.post(url, json={
                 "data": [prompt]
             })
