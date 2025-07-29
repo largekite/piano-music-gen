@@ -1,6 +1,2 @@
 streamlit
 mido
-requests
-torchaudio==2.1.2
-torch==2.1.2+cpu -f https://download.pytorch.org/whl/torch_stable.html
-git+https://github.com/facebookresearch/audiocraft.git
