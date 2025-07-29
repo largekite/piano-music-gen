@@ -13,17 +13,14 @@ mood = st.radio("Mood", ["Happy", "Melancholic", "Dreamy", "Intense"])
 duration = st.selectbox("Duration", ["30 sec", "1 min", "2 min"], index=1)
 
 if st.button("🎼 Generate MIDI"):
-    with st.spinner("Generating MIDI..."):
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".mid") as tmp:
-            mid = MidiFile()
-            track = MidiTrack()
-            mid.tracks.append(track)
-            # Simple scale example
-            for note in [60, 62, 64, 65, 67, 69, 71, 72]:
-                track.append(Message('note_on', note=note, velocity=64, time=0))
-                track.append(Message('note_off', note=note, velocity=64, time=480))
-            mid.save(tmp.name)
-            st.success("✅ MIDI Generated")
-            st.audio(tmp.name)
-            with open(tmp.name, "rb") as f:
-                st.download_button("⬇️ Download MIDI", f, file_name="piano_scale.mid")
+    with st.spinner("Contacting backend..."):
+        url = "https://your-username-your-space.hf.space/generate-midi"  # 🔁 CHANGE THIS
+        try:
+            response = requests.post(url, json={"prompt": prompt})
+            if response.status_code == 200:
+                st.success("✅ MIDI received!")
+                st.download_button("⬇️ Download MIDI", response.content, file_name="generated.mid")
+            else:
+                st.error(f"Error: {response.status_code}")
+        except Exception as e:
+            st.error(f"Connection failed: {e}")
