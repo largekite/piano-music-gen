@@ -14,6 +14,9 @@ tempo = st.slider("Tempo (BPM)", 40, 180, 100)
 mood = st.radio("Mood", ["Happy", "Melancholic", "Dreamy", "Intense"])
 duration = st.selectbox("Duration", ["30 sec", "1 min", "2 min"], index=1)
 
+# Input from the user
+prompt = st.text_input("🧠 Describe the music", value="A calm melody in C major")
+
 if st.button("🎼 Generate MIDI"):
     with st.spinner("Sending request to Hugging Face Gradio backend..."):
         try:
