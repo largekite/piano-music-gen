@@ -1,0 +1,21 @@
+# Virtual environments
+.magenta_venv/
+venv/
+env/
+
+# Generated files
+generated_midi/
+magenta_output/
+magenta_models/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# OS
+.DS_Store
+Thumbs.db
