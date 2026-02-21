@@ -13,7 +13,7 @@ from ..config import settings
 router = APIRouter()
 
 
-@router.get("/files", response_model=PaginatedResponse)
+@router.get("", response_model=PaginatedResponse)
 async def list_files(
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=100),
@@ -94,7 +94,7 @@ async def list_files(
     )
 
 
-@router.get("/files/{file_id}")
+@router.get("/{file_id}")
 async def get_file_metadata(file_id: str):
     """Get metadata for a specific file."""
     # Find file by ID (simplified - would use database in production)
@@ -116,7 +116,7 @@ async def get_file_metadata(file_id: str):
     raise HTTPException(status_code=404, detail="File not found")
 
 
-@router.get("/files/{file_id}/download")
+@router.get("/{file_id}/download")
 async def download_file(file_id: str):
     """Download a MIDI file."""
     # Find file by ID
@@ -134,7 +134,7 @@ async def download_file(file_id: str):
     raise HTTPException(status_code=404, detail="File not found")
 
 
-@router.delete("/files/{file_id}")
+@router.delete("/{file_id}")
 async def delete_file(file_id: str):
     """Delete a MIDI file."""
     # Find and delete file by ID
@@ -148,7 +148,7 @@ async def delete_file(file_id: str):
     raise HTTPException(status_code=404, detail="File not found")
 
 
-@router.get("/files/search")
+@router.get("/search")
 async def search_files(q: str):
     """Search files by filename."""
     midi_files = glob.glob(os.path.join(settings.GENERATED_MIDI_PATH, "*.mid"))
