@@ -1,0 +1,431 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07F823A3CB72D1DD189D39CF /* GenerateButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C6E9F89C91BF74180E3D999 /* GenerateButtonView.swift */; };
+		0C49819CA581E1AFAA4D77DB /* TrackRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EB27DF871AAD8DFC54852CF /* TrackRecord.swift */; };
+		164AE22C8A8A05AD613D6F91 /* NowPlayingBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785287DC2BBCBA7324066BAA /* NowPlayingBarView.swift */; };
+		23577470850A9882EB82C08B /* GenerationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9285AF474BB5BEAA6D18ECC5 /* GenerationState.swift */; };
+		284081659C4D61F48340026E /* LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 516647DDCCADD5CF43F7F8AC /* LibraryViewModel.swift */; };
+		33CCF1E3A799ABC80B84702F /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D045C2F1C311FF9B0ECA4CF5 /* RootView.swift */; };
+		376DD1EF43A720EC832DCE4B /* MIDIGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3DD8F250D612021606733E1 /* MIDIGenerator.swift */; };
+		46FFD8004641B6F945E47B41 /* TrackRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE36922AA3295CEE619D1EC /* TrackRowView.swift */; };
+		48150A6106A33E9EC5E07266 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92533248A59D99EAEB3E8C41 /* LibraryView.swift */; };
+		484BA7E49C4EEB610BC762F2 /* MIDIPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F144A8C9F7D1990E41515B /* MIDIPlayer.swift */; };
+		4EAD46058F1746763E37AFD0 /* DurationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00309CBAEBCC14AE956DDEF0 /* DurationPickerView.swift */; };
+		50F8D7C457A05A6E5E41813F /* GeneratedTrackPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44482CE3F5A575B3FC469B4B /* GeneratedTrackPlayerView.swift */; };
+		6343C36258C959409AF3275A /* PianoMusicGenApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF6045C5445BEE1CC5A5DE8 /* PianoMusicGenApp.swift */; };
+		73AD5879BEC683E59A51D9B7 /* TrackStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68AB7F4D05D7D2ADC14A12E7 /* TrackStorageService.swift */; };
+		81FA25A2507507027CDF02D6 /* GeneratorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85BF638ECBB8BBF8F6F56EB2 /* GeneratorViewModel.swift */; };
+		8999CFC02A223E8CC5A75EAD /* StylePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562D574E59C523C4A3537BD8 /* StylePickerView.swift */; };
+		8E26F7BBC7738C80433FD786 /* MusicParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98C7BDA5EF2459F1520B432F /* MusicParameters.swift */; };
+		944FB06DF6D389EB0EF73694 /* MoodPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E60E90BAB6409F8BEE3C7ED /* MoodPickerView.swift */; };
+		9BFB24255F976D3586B2527E /* TempoSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6F8BA5E15D36A3547F0E59 /* TempoSliderView.swift */; };
+		D76A44C2A4149BDB44E46C1F /* PromptGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF4F622A963B7E691FBD4A14 /* PromptGenerator.swift */; };
+		F2FEB4C7974BACBE9AE47CA4 /* GeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63DE290DE23C612735C23E40 /* GeneratorView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		00309CBAEBCC14AE956DDEF0 /* DurationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationPickerView.swift; sourceTree = "<group>"; };
+		0CF6045C5445BEE1CC5A5DE8 /* PianoMusicGenApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PianoMusicGenApp.swift; sourceTree = "<group>"; };
+		2CE36922AA3295CEE619D1EC /* TrackRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackRowView.swift; sourceTree = "<group>"; };
+		44482CE3F5A575B3FC469B4B /* GeneratedTrackPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedTrackPlayerView.swift; sourceTree = "<group>"; };
+		516647DDCCADD5CF43F7F8AC /* LibraryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewModel.swift; sourceTree = "<group>"; };
+		562D574E59C523C4A3537BD8 /* StylePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StylePickerView.swift; sourceTree = "<group>"; };
+		62F144A8C9F7D1990E41515B /* MIDIPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIPlayer.swift; sourceTree = "<group>"; };
+		63DE290DE23C612735C23E40 /* GeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratorView.swift; sourceTree = "<group>"; };
+		68AB7F4D05D7D2ADC14A12E7 /* TrackStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackStorageService.swift; sourceTree = "<group>"; };
+		6E60E90BAB6409F8BEE3C7ED /* MoodPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoodPickerView.swift; sourceTree = "<group>"; };
+		785287DC2BBCBA7324066BAA /* NowPlayingBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingBarView.swift; sourceTree = "<group>"; };
+		7EB27DF871AAD8DFC54852CF /* TrackRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackRecord.swift; sourceTree = "<group>"; };
+		85BF638ECBB8BBF8F6F56EB2 /* GeneratorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratorViewModel.swift; sourceTree = "<group>"; };
+		92533248A59D99EAEB3E8C41 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		9285AF474BB5BEAA6D18ECC5 /* GenerationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationState.swift; sourceTree = "<group>"; };
+		98C7BDA5EF2459F1520B432F /* MusicParameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicParameters.swift; sourceTree = "<group>"; };
+		9C6E9F89C91BF74180E3D999 /* GenerateButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateButtonView.swift; sourceTree = "<group>"; };
+		A3DD8F250D612021606733E1 /* MIDIGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIDIGenerator.swift; sourceTree = "<group>"; };
+		AF43954F67FDB38BC7D771AE /* PianoMusicGen.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PianoMusicGen.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD2103FEC4F4228D9CDF2E61 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CF4F622A963B7E691FBD4A14 /* PromptGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptGenerator.swift; sourceTree = "<group>"; };
+		D045C2F1C311FF9B0ECA4CF5 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		FA6F8BA5E15D36A3547F0E59 /* TempoSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempoSliderView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1B4BAB639FECD4BD116D6141 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AF43954F67FDB38BC7D771AE /* PianoMusicGen.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		26D2F0B749A64B7DA53CCD21 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9285AF474BB5BEAA6D18ECC5 /* GenerationState.swift */,
+				98C7BDA5EF2459F1520B432F /* MusicParameters.swift */,
+				7EB27DF871AAD8DFC54852CF /* TrackRecord.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		56EE5833283A4074C1351077 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				85BF638ECBB8BBF8F6F56EB2 /* GeneratorViewModel.swift */,
+				516647DDCCADD5CF43F7F8AC /* LibraryViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		6E609BCAC143EC773AC3406F /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				92533248A59D99EAEB3E8C41 /* LibraryView.swift */,
+				785287DC2BBCBA7324066BAA /* NowPlayingBarView.swift */,
+				2CE36922AA3295CEE619D1EC /* TrackRowView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		8211FF29A0F0B9C084B29642 = {
+			isa = PBXGroup;
+			children = (
+				A27AFA60DB34554DCB174FC6 /* PianoMusicGen */,
+				1B4BAB639FECD4BD116D6141 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9DF67DA589FAE0D16EEA54C7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A3DD8F250D612021606733E1 /* MIDIGenerator.swift */,
+				CF4F622A963B7E691FBD4A14 /* PromptGenerator.swift */,
+				68AB7F4D05D7D2ADC14A12E7 /* TrackStorageService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A27AFA60DB34554DCB174FC6 /* PianoMusicGen */ = {
+			isa = PBXGroup;
+			children = (
+				BD2103FEC4F4228D9CDF2E61 /* Info.plist */,
+				0CF6045C5445BEE1CC5A5DE8 /* PianoMusicGenApp.swift */,
+				26D2F0B749A64B7DA53CCD21 /* Models */,
+				DF7A3ADE02D209CB441BE107 /* Playback */,
+				9DF67DA589FAE0D16EEA54C7 /* Services */,
+				56EE5833283A4074C1351077 /* ViewModels */,
+				B8E20CDCFD461A7704044432 /* Views */,
+			);
+			path = PianoMusicGen;
+			sourceTree = "<group>";
+		};
+		B8E20CDCFD461A7704044432 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D045C2F1C311FF9B0ECA4CF5 /* RootView.swift */,
+				D075FA5EB492922C5407F8B4 /* Generator */,
+				6E609BCAC143EC773AC3406F /* Library */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D075FA5EB492922C5407F8B4 /* Generator */ = {
+			isa = PBXGroup;
+			children = (
+				00309CBAEBCC14AE956DDEF0 /* DurationPickerView.swift */,
+				9C6E9F89C91BF74180E3D999 /* GenerateButtonView.swift */,
+				44482CE3F5A575B3FC469B4B /* GeneratedTrackPlayerView.swift */,
+				63DE290DE23C612735C23E40 /* GeneratorView.swift */,
+				6E60E90BAB6409F8BEE3C7ED /* MoodPickerView.swift */,
+				562D574E59C523C4A3537BD8 /* StylePickerView.swift */,
+				FA6F8BA5E15D36A3547F0E59 /* TempoSliderView.swift */,
+			);
+			path = Generator;
+			sourceTree = "<group>";
+		};
+		DF7A3ADE02D209CB441BE107 /* Playback */ = {
+			isa = PBXGroup;
+			children = (
+				62F144A8C9F7D1990E41515B /* MIDIPlayer.swift */,
+			);
+			path = Playback;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A8D43322BCE0EC3C0BAA45D4 /* PianoMusicGen */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D69951487E26DBC9E8329C65 /* Build configuration list for PBXNativeTarget "PianoMusicGen" */;
+			buildPhases = (
+				543EBDD5478390C7C8D8538B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PianoMusicGen;
+			packageProductDependencies = (
+			);
+			productName = PianoMusicGen;
+			productReference = AF43954F67FDB38BC7D771AE /* PianoMusicGen.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2FC53BF371ABA1D9D528F79E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					A8D43322BCE0EC3C0BAA45D4 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = BEA665690EF801361CE192E7 /* Build configuration list for PBXProject "PianoMusicGen" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 8211FF29A0F0B9C084B29642;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A8D43322BCE0EC3C0BAA45D4 /* PianoMusicGen */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		543EBDD5478390C7C8D8538B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4EAD46058F1746763E37AFD0 /* DurationPickerView.swift in Sources */,
+				07F823A3CB72D1DD189D39CF /* GenerateButtonView.swift in Sources */,
+				50F8D7C457A05A6E5E41813F /* GeneratedTrackPlayerView.swift in Sources */,
+				23577470850A9882EB82C08B /* GenerationState.swift in Sources */,
+				F2FEB4C7974BACBE9AE47CA4 /* GeneratorView.swift in Sources */,
+				81FA25A2507507027CDF02D6 /* GeneratorViewModel.swift in Sources */,
+				48150A6106A33E9EC5E07266 /* LibraryView.swift in Sources */,
+				284081659C4D61F48340026E /* LibraryViewModel.swift in Sources */,
+				376DD1EF43A720EC832DCE4B /* MIDIGenerator.swift in Sources */,
+				484BA7E49C4EEB610BC762F2 /* MIDIPlayer.swift in Sources */,
+				944FB06DF6D389EB0EF73694 /* MoodPickerView.swift in Sources */,
+				8E26F7BBC7738C80433FD786 /* MusicParameters.swift in Sources */,
+				164AE22C8A8A05AD613D6F91 /* NowPlayingBarView.swift in Sources */,
+				6343C36258C959409AF3275A /* PianoMusicGenApp.swift in Sources */,
+				D76A44C2A4149BDB44E46C1F /* PromptGenerator.swift in Sources */,
+				33CCF1E3A799ABC80B84702F /* RootView.swift in Sources */,
+				8999CFC02A223E8CC5A75EAD /* StylePickerView.swift in Sources */,
+				9BFB24255F976D3586B2527E /* TempoSliderView.swift in Sources */,
+				0C49819CA581E1AFAA4D77DB /* TrackRecord.swift in Sources */,
+				46FFD8004641B6F945E47B41 /* TrackRowView.swift in Sources */,
+				73AD5879BEC683E59A51D9B7 /* TrackStorageService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		323A0B29C7A577467869A805 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = PianoMusicGen/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pianomusicgen.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		426C74560A44741C38A8301E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		D026E966143017A986D0F62F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		E4EA32F6FAE9EDB1EA35E64B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = PianoMusicGen/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pianomusicgen.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BEA665690EF801361CE192E7 /* Build configuration list for PBXProject "PianoMusicGen" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				426C74560A44741C38A8301E /* Debug */,
+				D026E966143017A986D0F62F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D69951487E26DBC9E8329C65 /* Build configuration list for PBXNativeTarget "PianoMusicGen" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				323A0B29C7A577467869A805 /* Debug */,
+				E4EA32F6FAE9EDB1EA35E64B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2FC53BF371ABA1D9D528F79E /* Project object */;
+}
