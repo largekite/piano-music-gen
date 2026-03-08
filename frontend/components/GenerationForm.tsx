@@ -101,10 +101,22 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
             disabled={isGenerating}
           >
-            <option value="C major">C major</option>
-            <option value="D major">D major</option>
-            <option value="G major">G major</option>
-            <option value="A minor">A minor</option>
+            <optgroup label="Major Keys">
+              <option value="C major">C major</option>
+              <option value="D major">D major</option>
+              <option value="E major">E major</option>
+              <option value="F major">F major</option>
+              <option value="G major">G major</option>
+              <option value="A major">A major</option>
+              <option value="Bb major">Bb major</option>
+            </optgroup>
+            <optgroup label="Minor Keys">
+              <option value="A minor">A minor</option>
+              <option value="C minor">C minor</option>
+              <option value="D minor">D minor</option>
+              <option value="E minor">E minor</option>
+              <option value="G minor">G minor</option>
+            </optgroup>
           </select>
         </div>
 

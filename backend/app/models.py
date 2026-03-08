@@ -2,7 +2,7 @@
 Pydantic models for API request/response validation.
 """
 from pydantic import BaseModel, Field
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 from datetime import datetime
 from enum import Enum
 
@@ -26,8 +26,16 @@ class MusicKey(str, Enum):
     """Musical keys."""
     C_MAJOR = "C major"
     D_MAJOR = "D major"
+    E_MAJOR = "E major"
+    F_MAJOR = "F major"
     G_MAJOR = "G major"
+    A_MAJOR = "A major"
+    BB_MAJOR = "Bb major"
     A_MINOR = "A minor"
+    C_MINOR = "C minor"
+    D_MINOR = "D minor"
+    E_MINOR = "E minor"
+    G_MINOR = "G minor"
 
 
 class Mood(str, Enum):
@@ -164,3 +172,17 @@ class BackendStatus(BaseModel):
     name: str
     available: bool
     message: Optional[str] = None
+
+
+class MidiNote(BaseModel):
+    """A single MIDI note for editing."""
+    midi: int = Field(ge=0, le=127, description="MIDI note number")
+    time: float = Field(ge=0, description="Start time in seconds")
+    duration: float = Field(gt=0, description="Duration in seconds")
+    velocity: int = Field(ge=1, le=127, default=80)
+
+
+class MidiEditRequest(BaseModel):
+    """Request to modify a MIDI file's notes."""
+    notes: List[MidiNote] = Field(description="Complete list of notes for the file")
+    tempo: int = Field(ge=40, le=300, default=120)

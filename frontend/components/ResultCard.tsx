@@ -61,8 +61,13 @@ export default function ResultCard({ result }: ResultCardProps) {
         </a>
       </div>
 
-      {/* MIDI Player */}
-      <MidiPlayer midiUrl={downloadUrl} filename={result.filename} />
+      {/* MIDI Player with Piano Roll Visualization & Editor */}
+      <MidiPlayer
+        midiUrl={downloadUrl}
+        filename={result.filename}
+        fileId={result.file_id}
+        editable={true}
+      />
     </div>
   );
 }
