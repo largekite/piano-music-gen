@@ -6,6 +6,7 @@ import GenerationForm from '@/components/GenerationForm';
 import ProgressDisplay from '@/components/ProgressDisplay';
 import ResultCard from '@/components/ResultCard';
 import PianoRoll, { PianoNote } from '@/components/PianoRoll';
+import SheetMusic from '@/components/SheetMusic';
 import Link from 'next/link';
 
 function ComposeFromScratch() {
@@ -13,6 +14,7 @@ function ComposeFromScratch() {
   const [tempo, setTempo] = useState(120);
   const [isSaving, setIsSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<{ fileId: string; filename: string } | null>(null);
+  const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet'>('piano-roll');
 
   const duration = notes.length > 0
     ? Math.max(...notes.map(n => n.time + n.duration)) + 4
@@ -137,13 +139,40 @@ function ComposeFromScratch() {
         )}
       </div>
 
+      {/* View Toggle */}
+      <div className="flex gap-2">
+        {(['piano-roll', 'sheet'] as const).map((mode) => (
+          <button
+            key={mode}
+            onClick={() => setViewMode(mode)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              viewMode === mode
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {mode === 'piano-roll' ? 'Piano Roll' : 'Sheet Music'}
+          </button>
+        ))}
+      </div>
+
       {/* Piano Roll Editor */}
-      <PianoRoll
-        notes={notes}
-        duration={duration}
-        editable={true}
-        onNotesChange={setNotes}
-      />
+      {viewMode === 'piano-roll' && (
+        <PianoRoll
+          notes={notes}
+          duration={duration}
+          editable={true}
+          onNotesChange={setNotes}
+        />
+      )}
+
+      {/* Sheet Music View */}
+      {viewMode === 'sheet' && (
+        <SheetMusic
+          notes={notes}
+          tempo={tempo}
+        />
+      )}
 
       {/* Playback for composed notes */}
       {notes.length > 0 && (

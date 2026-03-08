@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
 import PianoRoll, { PianoNote } from './PianoRoll';
+import SheetMusic from './SheetMusic';
 
 interface MidiPlayerProps {
   midiUrl: string;
@@ -20,7 +21,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pianoNotes, setPianoNotes] = useState<PianoNote[]>([]);
-  const [showPianoRoll, setShowPianoRoll] = useState(true);
+  const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet' | 'hidden'>('piano-roll');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [tempo, setTempo] = useState(120);
@@ -273,16 +274,19 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-lg text-gray-800">MIDI Player</h3>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowPianoRoll(!showPianoRoll)}
-              className={`px-3 py-1 rounded text-sm font-medium transition ${
-                showPianoRoll
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {showPianoRoll ? 'Hide Piano Roll' : 'Show Piano Roll'}
-            </button>
+            {(['piano-roll', 'sheet', 'hidden'] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`px-3 py-1 rounded text-sm font-medium transition ${
+                  viewMode === mode
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {mode === 'piano-roll' ? 'Piano Roll' : mode === 'sheet' ? 'Sheet Music' : 'Hide'}
+              </button>
+            ))}
             {editable && fileId && (
               <button
                 onClick={handleSave}
@@ -302,7 +306,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
       </div>
 
       {/* Piano Roll Visualization */}
-      {showPianoRoll && (
+      {viewMode === 'piano-roll' && (
         <PianoRoll
           notes={pianoNotes}
           duration={duration || 16}
@@ -310,6 +314,16 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           isPlaying={isPlaying}
           editable={editable}
           onNotesChange={editable ? handleNotesChange : undefined}
+        />
+      )}
+
+      {/* Sheet Music View */}
+      {viewMode === 'sheet' && (
+        <SheetMusic
+          notes={pianoNotes}
+          tempo={tempo}
+          currentTime={progress}
+          isPlaying={isPlaying}
         />
       )}
 
