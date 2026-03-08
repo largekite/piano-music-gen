@@ -302,10 +302,10 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
       </div>
 
       {/* Piano Roll Visualization */}
-      {showPianoRoll && pianoNotes.length > 0 && (
+      {showPianoRoll && (
         <PianoRoll
           notes={pianoNotes}
-          duration={duration}
+          duration={duration || 16}
           currentTime={progress}
           isPlaying={isPlaying}
           editable={editable}
@@ -361,12 +361,28 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           </div>
         </div>
 
-        {/* File Info */}
+        {/* File Info & Tempo Control */}
         <div className="flex items-center gap-4 text-xs text-gray-500 border-t pt-2">
           <span>{filename}</span>
           <span>{formatTime(duration)}</span>
           <span>{pianoNotes.length} notes</span>
-          <span>{tempo} BPM</span>
+          {editable ? (
+            <div className="flex items-center gap-1">
+              <label htmlFor="tempo-ctrl">Tempo:</label>
+              <input
+                id="tempo-ctrl"
+                type="number"
+                min="40"
+                max="300"
+                value={tempo}
+                onChange={(e) => setTempo(Math.max(40, Math.min(300, parseInt(e.target.value) || 120)))}
+                className="w-14 px-1 py-0.5 bg-gray-100 border rounded text-xs text-gray-700"
+              />
+              <span>BPM</span>
+            </div>
+          ) : (
+            <span>{tempo} BPM</span>
+          )}
         </div>
       </div>
     </div>

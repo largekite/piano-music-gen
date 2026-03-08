@@ -10,7 +10,7 @@ interface GenerationFormProps {
 }
 
 export default function GenerationForm({ onGenerate, isGenerating }: GenerationFormProps) {
-  const [backend, setBackend] = useState<BackendType>('huggingface');
+  const [backend, setBackend] = useState<BackendType>('simple');
   const [style, setStyle] = useState<MusicStyle>('Classical');
   const [key, setKey] = useState<MusicKey>('C major');
   const [tempo, setTempo] = useState<number>(100);
@@ -57,9 +57,9 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           disabled={isGenerating}
         >
-          <option value="huggingface">🌐 HuggingFace Space (Cloud AI)</option>
-          <option value="magenta">🎹 Local Magenta (Offline)</option>
-          <option value="simple">🎼 Simple MIDI (Fallback)</option>
+          <option value="simple">🎹 Built-in Piano Engine (Recommended)</option>
+          <option value="huggingface">🌐 HuggingFace Space (Requires API Key)</option>
+          <option value="magenta">🎼 Local Magenta (Requires Install)</option>
         </select>
 
         {backend === 'magenta' && (

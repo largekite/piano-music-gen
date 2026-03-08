@@ -5,10 +5,234 @@ import { useGeneration } from '@/lib/hooks/useGeneration';
 import GenerationForm from '@/components/GenerationForm';
 import ProgressDisplay from '@/components/ProgressDisplay';
 import ResultCard from '@/components/ResultCard';
+import PianoRoll, { PianoNote } from '@/components/PianoRoll';
 import Link from 'next/link';
 
+function ComposeFromScratch() {
+  const [notes, setNotes] = useState<PianoNote[]>([]);
+  const [tempo, setTempo] = useState(120);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveResult, setSaveResult] = useState<{ fileId: string; filename: string } | null>(null);
+
+  const duration = notes.length > 0
+    ? Math.max(...notes.map(n => n.time + n.duration)) + 4
+    : 32; // Default 8 bars at 120bpm
+
+  const handleSaveNew = async () => {
+    if (notes.length === 0) return;
+    setIsSaving(true);
+    setSaveResult(null);
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+      // First generate a minimal MIDI to get a file ID, then update it with our notes
+      const genResponse = await fetch(`${apiUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parameters: {
+            backend: 'simple',
+            style: 'Classical',
+            key: 'C major',
+            tempo,
+            mood: 'Happy',
+            duration: '30 sec',
+          },
+        }),
+      });
+
+      if (!genResponse.ok) throw new Error('Failed to create file');
+      const job = await genResponse.json();
+
+      // Wait for generation to complete
+      let fileId = '';
+      let filename = '';
+      for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, 500));
+        const statusRes = await fetch(`${apiUrl}/api/generate/${job.job_id}/status`);
+        const status = await statusRes.json();
+        if (status.status === 'completed' && status.result) {
+          fileId = status.result.file_id;
+          filename = status.result.filename;
+          break;
+        }
+        if (status.status === 'failed') throw new Error('Generation failed');
+      }
+
+      if (!fileId) throw new Error('Timed out');
+
+      // Now overwrite with our composed notes
+      const editResponse = await fetch(`${apiUrl}/api/files/${fileId}/notes`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notes: notes.map(n => ({
+            midi: n.midi,
+            time: n.time,
+            duration: n.duration,
+            velocity: n.velocity || 80,
+          })),
+          tempo,
+        }),
+      });
+
+      if (!editResponse.ok) throw new Error('Failed to save notes');
+      setSaveResult({ fileId, filename });
+    } catch (err) {
+      console.error('Save error:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const downloadUrl = saveResult
+    ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/${saveResult.fileId}/download`
+    : null;
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white rounded-lg shadow p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="font-bold text-lg text-gray-800">Compose from Scratch</h2>
+            <p className="text-sm text-gray-500">
+              Use the piano roll editor below. Select the Draw tool, set snap grid, and click/drag to place notes.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-sm">
+              <label htmlFor="scratch-tempo" className="text-gray-600">Tempo:</label>
+              <input
+                id="scratch-tempo"
+                type="number"
+                min="40" max="300"
+                value={tempo}
+                onChange={e => setTempo(Math.max(40, Math.min(300, parseInt(e.target.value) || 120)))}
+                className="w-16 px-2 py-1 border rounded text-sm"
+              />
+              <span className="text-gray-500">BPM</span>
+            </div>
+            <button
+              onClick={handleSaveNew}
+              disabled={isSaving || notes.length === 0}
+              className="px-4 py-2 rounded-lg font-medium text-sm bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition disabled:opacity-50"
+            >
+              {isSaving ? 'Saving...' : 'Save as MIDI'}
+            </button>
+          </div>
+        </div>
+
+        {saveResult && downloadUrl && (
+          <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+            <span className="text-green-700 text-sm">Saved! {saveResult.filename}</span>
+            <a
+              href={downloadUrl}
+              download={saveResult.filename}
+              className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
+            >
+              Download MIDI
+            </a>
+          </div>
+        )}
+      </div>
+
+      {/* Piano Roll Editor */}
+      <PianoRoll
+        notes={notes}
+        duration={duration}
+        editable={true}
+        onNotesChange={setNotes}
+      />
+
+      {/* Playback for composed notes */}
+      {notes.length > 0 && (
+        <ScratchPlayer notes={notes} tempo={tempo} />
+      )}
+    </div>
+  );
+}
+
+// Lightweight player for scratch compositions (no MIDI file needed)
+function ScratchPlayer({ notes, tempo }: { notes: PianoNote[]; tempo: number }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const duration = Math.max(...notes.map(n => n.time + n.duration));
+
+  const handlePlay = async () => {
+    const Tone = await import('tone');
+    await Tone.start();
+
+    if (isPlaying) {
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      setIsPlaying(false);
+      setProgress(0);
+      return;
+    }
+
+    const synth = new Tone.PolySynth(Tone.Synth, {
+      volume: -8,
+      oscillator: { type: 'fmtriangle' as const, modulationType: 'sine' as const, harmonicity: 3.01, modulationIndex: 14 },
+      envelope: { attack: 0.005, decay: 0.3, sustain: 0.2, release: 1.5 },
+    }).toDestination();
+
+    const now = Tone.now();
+    notes.forEach(note => {
+      const vel = (note.velocity || 80) / 127;
+      synth.triggerAttackRelease(
+        Tone.Frequency(note.midi, 'midi').toFrequency(),
+        Math.max(0.01, note.duration),
+        now + note.time,
+        vel
+      );
+    });
+
+    setIsPlaying(true);
+    const startTime = Tone.now();
+
+    const interval = setInterval(() => {
+      const elapsed = Tone.now() - startTime;
+      setProgress(elapsed);
+      if (elapsed > duration + 0.5) {
+        clearInterval(interval);
+        setIsPlaying(false);
+        setProgress(0);
+        synth.dispose();
+      }
+    }, 50);
+  };
+
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
+
+  return (
+    <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
+      <button
+        onClick={handlePlay}
+        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-5 rounded-lg shadow transition"
+      >
+        {isPlaying ? 'Stop' : 'Play'}
+      </button>
+      <div className="flex-1">
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all"
+            style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <span>{formatTime(progress)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+      </div>
+      <span className="text-xs text-gray-500">{notes.length} notes | {tempo} BPM</span>
+    </div>
+  );
+}
+
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'generate' | 'files'>('generate');
+  const [activeTab, setActiveTab] = useState<'generate' | 'compose'>('generate');
   const {
     generate,
     reset,
@@ -29,9 +253,9 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                🎹 Piano Music Generator
+                Piano Music Studio
               </h1>
-              <p className="text-gray-600 mt-1">Create beautiful piano MIDI music with AI</p>
+              <p className="text-gray-600 mt-1">Generate, compose, visualize, and edit piano music</p>
             </div>
 
             {/* Connection Status */}
@@ -59,26 +283,34 @@ export default function Home() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            🎼 Generate Music
+            Generate Music
+          </button>
+          <button
+            onClick={() => setActiveTab('compose')}
+            className={`px-6 py-3 font-medium transition border-b-2 ${
+              activeTab === 'compose'
+                ? 'border-purple-600 text-purple-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Compose from Scratch
           </button>
           <Link
             href="/files"
             className="px-6 py-3 font-medium transition border-b-2 border-transparent text-gray-500 hover:text-gray-700"
           >
-            📊 Generated Files
+            Generated Files
           </Link>
         </div>
 
         {/* Generate Tab */}
         {activeTab === 'generate' && (
           <div className="space-y-6">
-            {/* Generation Form */}
             <GenerationForm
               onGenerate={generate}
               isGenerating={isGenerating}
             />
 
-            {/* Progress Display */}
             <ProgressDisplay
               isGenerating={isGenerating}
               progress={progress}
@@ -87,29 +319,30 @@ export default function Home() {
               error={error}
             />
 
-            {/* Result Card */}
             {result && !isGenerating && (
               <div>
                 <ResultCard result={result} />
-
-                {/* Generate Another Button */}
                 <button
                   onClick={reset}
                   className="mt-4 w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg transition"
                 >
-                  🔄 Generate Another
+                  Generate Another
                 </button>
               </div>
             )}
           </div>
+        )}
+
+        {/* Compose Tab */}
+        {activeTab === 'compose' && (
+          <ComposeFromScratch />
         )}
       </main>
 
       {/* Footer */}
       <footer className="bg-white border-t mt-12">
         <div className="container mx-auto px-4 py-6 text-center text-gray-600 text-sm">
-          <p>Piano Music Generator - Powered by AI & Machine Learning</p>
-          <p className="mt-1">Backends: HuggingFace Space | Google Magenta | Simple MIDI</p>
+          <p>Piano Music Studio - Generate, Compose, Visualize & Edit</p>
         </div>
       </footer>
     </div>
