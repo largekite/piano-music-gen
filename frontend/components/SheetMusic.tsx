@@ -724,7 +724,23 @@ export default function SheetMusic({
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden">
       <div className="px-4 py-2 border-b bg-gray-50 flex items-center justify-between flex-wrap gap-2">
-        <h3 className="font-medium text-gray-700 text-sm">Sheet Music</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="font-medium text-gray-700 text-sm">Sheet Music</h3>
+          <button
+            onClick={() => {
+              const canvas = canvasRef.current;
+              if (!canvas) return;
+              const link = document.createElement('a');
+              link.download = 'sheet-music.png';
+              link.href = canvas.toDataURL('image/png');
+              link.click();
+            }}
+            className="px-2 py-0.5 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"
+            title="Download as PNG"
+          >
+            Download PNG
+          </button>
+        </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* Key signature selector */}
