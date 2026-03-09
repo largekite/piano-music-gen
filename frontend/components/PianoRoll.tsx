@@ -436,7 +436,7 @@ export default function PianoRoll({
       const endTime = xToTime(Math.max(dragState.startX, x));
       const midi = yToMidi(dragState.startY);
 
-      let t = snapValue > 0 ? snapToGrid(startTime, snapValue) : startTime;
+      const t = snapValue > 0 ? snapToGrid(startTime, snapValue) : startTime;
       let dur = endTime - startTime;
       if (snapValue > 0) dur = Math.max(snapValue, snapToGrid(dur, snapValue));
       else dur = Math.max(0.1, dur);

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { filesApi } from '@/lib/api/client';
-import type { MidiFileMetadata } from '@/types/api';
 
 export default function FilesPage() {
   const [files, setFiles] = useState<any[]>([]);
@@ -52,7 +51,7 @@ export default function FilesPage() {
     try {
       await filesApi.deleteFile(fileId);
       loadFiles();
-    } catch (err) {
+    } catch {
       alert('Failed to delete file');
     }
   };

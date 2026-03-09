@@ -248,7 +248,8 @@ export default function SheetMusic({
       container.innerHTML = '';
       renderedRef.current = false;
 
-      const { Renderer, Stave, StaveNote, Voice, Formatter, GhostNote, StaveConnector } = VF.default || VF;
+      const vf = VF.default || VF;
+      const { Renderer, Stave, StaveNote, Voice, Formatter, GhostNote, StaveConnector, Accidental, Barline } = vf;
       const BEATS_PER_MEASURE = 4;
       const MEASURES_PER_LINE = 4;
       const STAVE_WIDTH = 280;
@@ -312,7 +313,7 @@ export default function SheetMusic({
           // Fill gap with rests
           const gap = beat - currentBeat;
           if (gap >= 0.125) {
-            const restNotes = fillWithRests(gap, clef);
+            const restNotes = fillWithRests(gap);
             vfNotes.push(...restNotes);
           }
 
@@ -346,12 +347,12 @@ export default function SheetMusic({
             for (let i = 0; i < keys.length; i++) {
               const key = keys[i];
               if (key.includes('#')) {
-                staveNote.addModifier(new VF.Accidental('#'), i);
+                staveNote.addModifier(new Accidental('#'), i);
               } else if (key.includes('b') && key[0] !== 'b') {
                 // has a flat but isn't the note 'b'
                 const notePart = key.split('/')[0];
                 if (notePart.length > 1 && notePart[1] === 'b') {
-                  staveNote.addModifier(new VF.Accidental('b'), i);
+                  staveNote.addModifier(new Accidental('b'), i);
                 }
               }
             }
@@ -374,7 +375,7 @@ export default function SheetMusic({
         // Fill remaining beats
         const remaining = BEATS_PER_MEASURE - currentBeat;
         if (remaining >= 0.125) {
-          const restNotes = fillWithRests(remaining, clef);
+          const restNotes = fillWithRests(remaining);
           vfNotes.push(...restNotes);
         }
 
@@ -383,7 +384,6 @@ export default function SheetMusic({
 
       function fillWithRests(
         beats: number,
-        clef: string,
       ): InstanceType<typeof GhostNote>[] {
         const rests: InstanceType<typeof GhostNote>[] = [];
         let remaining = beats;
@@ -424,7 +424,7 @@ export default function SheetMusic({
             }
           }
           if (m === startMeasure) {
-            trebleStave.setBegBarType(VF.Barline.type.NONE);
+            trebleStave.setBegBarType(Barline.type.NONE);
           }
           trebleStave.setContext(context).draw();
 
@@ -438,7 +438,7 @@ export default function SheetMusic({
             }
           }
           if (m === startMeasure) {
-            bassStave.setBegBarType(VF.Barline.type.NONE);
+            bassStave.setBegBarType(Barline.type.NONE);
           }
           bassStave.setContext(context).draw();
 

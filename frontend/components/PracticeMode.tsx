@@ -285,7 +285,7 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
       <div className="px-5 py-4 border-b border-warm-100 bg-gradient-to-r from-plum-50 to-warm-50 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h3 className="font-bold text-stone-700 text-sm">Practice Mode</h3>
-          <p className="text-xs text-stone-400">Play each note on your piano &mdash; we'll listen and let you know!</p>
+          <p className="text-xs text-stone-400">Play each note on your piano &mdash; we&apos;ll listen and let you know!</p>
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-1.5 text-xs text-stone-500 cursor-pointer select-none">
