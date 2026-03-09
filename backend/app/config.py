@@ -1,6 +1,7 @@
 """
 Application configuration settings.
 """
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 from typing import List, Optional
 import os
@@ -21,6 +22,13 @@ class Settings(BaseSettings):
         "http://localhost:3001",
         "http://127.0.0.1:3001",
     ]
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def parse_origins(cls, v: object) -> object:
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
 
     # Storage Paths
     STORAGE_PATH: str = "app/storage"
