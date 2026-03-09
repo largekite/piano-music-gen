@@ -14,13 +14,12 @@ class Settings(BaseSettings):
     API_VERSION: str = "1.0.0"
     API_PREFIX: str = "/api"
 
-    # CORS Settings
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-    ]
+    # CORS Settings (comma-separated string, e.g. "https://example.com,http://localhost:3000")
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
+
+    @property
+    def allowed_origins_list(self) -> List[str]:
+        return [s.strip() for s in self.ALLOWED_ORIGINS.split(",") if s.strip()]
 
     # Storage Paths
     STORAGE_PATH: str = "app/storage"

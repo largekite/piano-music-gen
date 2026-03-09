@@ -20,7 +20,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=settings.allowed_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,7 +29,7 @@ app.add_middleware(
 # Create Socket.IO server
 sio = socketio.AsyncServer(
     async_mode='asgi',
-    cors_allowed_origins=settings.ALLOWED_ORIGINS,
+    cors_allowed_origins=settings.allowed_origins_list,
     logger=True,
     engineio_logger=True
 )
