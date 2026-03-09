@@ -266,7 +266,7 @@ async def update_file_notes(file_id: str, edit_request: MidiEditRequest):
                 events.append(('off', start_tick + dur_tick, note.midi, 0))
 
             # Sort events by tick time
-            events.sort(key=lambda e: (e[1], 0 if e[0] == 'off' else 1))
+            events.sort(key=lambda e: (e[1], 0 if e[0] == 'on' else 1))
 
             prev_tick = 0
             for event_type, tick, note_num, vel in events:

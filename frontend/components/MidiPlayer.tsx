@@ -28,69 +28,70 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
   const [tempo, setTempo] = useState(120);
   const [keySignature, setKeySignature] = useState<KeySignature>('C major');
 
-  const synthRef = useRef<Tone.PolySynth | null>(null);
+  const samplerRef = useRef<Tone.Sampler | null>(null);
   const reverbRef = useRef<Tone.Reverb | null>(null);
   const compressorRef = useRef<Tone.Compressor | null>(null);
   const midiRef = useRef<Midi | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const progressRef = useRef<number>(0);
+  const [samplerReady, setSamplerReady] = useState(false);
 
   // Keep progressRef in sync with state
   useEffect(() => {
     progressRef.current = progress;
   }, [progress]);
 
-  // Create a fresh synth connected to the effects chain
+  // Create a fresh sampler connected to the effects chain
   const createSynth = useCallback(() => {
-    if (synthRef.current) synthRef.current.dispose();
-    synthRef.current = new Tone.PolySynth(Tone.Synth, {
-      volume: -8,
-      oscillator: {
-        type: 'fmtriangle',
-        modulationType: 'sine',
-        harmonicity: 3.01,
-        modulationIndex: 14,
+    if (samplerRef.current) samplerRef.current.dispose();
+    const baseUrl = 'https://tonejs.github.io/audio/salamander/';
+    samplerRef.current = new Tone.Sampler({
+      urls: {
+        A0: 'A0.mp3', C1: 'C1.mp3', 'D#1': 'Ds1.mp3', 'F#1': 'Fs1.mp3',
+        A1: 'A1.mp3', C2: 'C2.mp3', 'D#2': 'Ds2.mp3', 'F#2': 'Fs2.mp3',
+        A2: 'A2.mp3', C3: 'C3.mp3', 'D#3': 'Ds3.mp3', 'F#3': 'Fs3.mp3',
+        A3: 'A3.mp3', C4: 'C4.mp3', 'D#4': 'Ds4.mp3', 'F#4': 'Fs4.mp3',
+        A4: 'A4.mp3', C5: 'C5.mp3', 'D#5': 'Ds5.mp3', 'F#5': 'Fs5.mp3',
+        A5: 'A5.mp3', C6: 'C6.mp3', 'D#6': 'Ds6.mp3', 'F#6': 'Fs6.mp3',
+        A6: 'A6.mp3', C7: 'C7.mp3', 'D#7': 'Ds7.mp3', 'F#7': 'Fs7.mp3',
+        A7: 'A7.mp3', C8: 'C8.mp3',
       },
-      envelope: {
-        attack: 0.005,
-        decay: 0.3,
-        sustain: 0.2,
-        release: 1.5,
-      },
+      release: 1,
+      baseUrl,
+      onload: () => setSamplerReady(true),
     }).connect(compressorRef.current!);
-    if (synthRef.current) {
-      synthRef.current.volume.value = (volume - 100) / 3;
-    }
+    samplerRef.current.volume.value = (volume - 100) / 3;
   }, [volume]);
 
-  // Initialize effects chain and synth
+  // Initialize effects chain and sampler
   useEffect(() => {
     const reverb = new Tone.Reverb({ decay: 2.5, wet: 0.3 }).toDestination();
     reverbRef.current = reverb;
     const compressor = new Tone.Compressor(-20, 4).connect(reverb);
     compressorRef.current = compressor;
 
-    synthRef.current = new Tone.PolySynth(Tone.Synth, {
-      volume: -8,
-      oscillator: {
-        type: 'fmtriangle',
-        modulationType: 'sine',
-        harmonicity: 3.01,
-        modulationIndex: 14,
+    const baseUrl = 'https://tonejs.github.io/audio/salamander/';
+    samplerRef.current = new Tone.Sampler({
+      urls: {
+        A0: 'A0.mp3', C1: 'C1.mp3', 'D#1': 'Ds1.mp3', 'F#1': 'Fs1.mp3',
+        A1: 'A1.mp3', C2: 'C2.mp3', 'D#2': 'Ds2.mp3', 'F#2': 'Fs2.mp3',
+        A2: 'A2.mp3', C3: 'C3.mp3', 'D#3': 'Ds3.mp3', 'F#3': 'Fs3.mp3',
+        A3: 'A3.mp3', C4: 'C4.mp3', 'D#4': 'Ds4.mp3', 'F#4': 'Fs4.mp3',
+        A4: 'A4.mp3', C5: 'C5.mp3', 'D#5': 'Ds5.mp3', 'F#5': 'Fs5.mp3',
+        A5: 'A5.mp3', C6: 'C6.mp3', 'D#6': 'Ds6.mp3', 'F#6': 'Fs6.mp3',
+        A6: 'A6.mp3', C7: 'C7.mp3', 'D#7': 'Ds7.mp3', 'F#7': 'Fs7.mp3',
+        A7: 'A7.mp3', C8: 'C8.mp3',
       },
-      envelope: {
-        attack: 0.005,
-        decay: 0.3,
-        sustain: 0.2,
-        release: 1.5,
-      },
+      release: 1,
+      baseUrl,
+      onload: () => setSamplerReady(true),
     }).connect(compressor);
 
     return () => {
       Tone.Transport.stop();
       Tone.Transport.cancel();
-      if (synthRef.current) synthRef.current.dispose();
+      if (samplerRef.current) samplerRef.current.dispose();
       if (reverbRef.current) reverbRef.current.dispose();
       if (compressorRef.current) compressorRef.current.dispose();
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
@@ -153,8 +154,8 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
 
   // Update volume
   useEffect(() => {
-    if (synthRef.current) {
-      synthRef.current.volume.value = (volume - 100) / 3;
+    if (samplerRef.current) {
+      samplerRef.current.volume.value = (volume - 100) / 3;
     }
   }, [volume]);
 
@@ -171,7 +172,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
   }, []);
 
   const handlePlayPause = async () => {
-    if (!synthRef.current) return;
+    if (!samplerRef.current || !samplerReady) return;
 
     if (isPlaying) {
       Tone.Transport.pause();
@@ -202,8 +203,8 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
 
           const vel = (note.velocity || 80) / 127;
 
-          synthRef.current?.triggerAttackRelease(
-            Tone.Frequency(note.midi, 'midi').toFrequency(),
+          samplerRef.current?.triggerAttackRelease(
+            Tone.Frequency(note.midi, 'midi').toNote(),
             Math.max(0.01, noteDur),
             now + noteStart,
             vel
@@ -243,7 +244,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
       // Wait a tick for state to settle, then resume from new position
       await new Promise(r => setTimeout(r, 0));
       // Manually trigger play from the new position
-      if (!synthRef.current) return;
+      if (!samplerRef.current) return;
       await Tone.start();
       Tone.Transport.cancel();
 
@@ -262,8 +263,8 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
             ? note.duration - (newProgress - note.time)
             : note.duration;
           const vel = (note.velocity || 80) / 127;
-          synthRef.current?.triggerAttackRelease(
-            Tone.Frequency(note.midi, 'midi').toFrequency(),
+          samplerRef.current?.triggerAttackRelease(
+            Tone.Frequency(note.midi, 'midi').toNote(),
             Math.max(0.01, noteDur),
             now + noteStart,
             vel
