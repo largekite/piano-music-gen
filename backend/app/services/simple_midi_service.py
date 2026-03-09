@@ -249,6 +249,7 @@ class SimpleMidiService:
                 rest_beats = random.choice([0.5, 1.0, 1.5])
                 current_beat += rest_beats
 
+            pending_gap = 0
             for i in range(pattern_len):
                 if current_beat >= total_beats:
                     break
@@ -280,15 +281,12 @@ class SimpleMidiService:
                 note_dur_ticks = int(dur_beats * ticks_per_beat * 0.9)
                 gap_ticks = int(dur_beats * ticks_per_beat * 0.1)
 
-                # Add note
-                track.append(mido.Message('note_on', note=note, velocity=velocity, channel=0, time=0))
+                # Add note (pending_gap from previous note creates spacing)
+                track.append(mido.Message('note_on', note=note, velocity=velocity, channel=0, time=pending_gap))
                 track.append(mido.Message('note_off', note=note, velocity=0, channel=0, time=note_dur_ticks))
 
-                # Small gap between notes
-                if gap_ticks > 0 and i < pattern_len - 1:
-                    # The gap time is added to the next note_on's time
-                    # We handle this by making the next note_on start after gap_ticks
-                    pass  # gap handled by next note_on time
+                # Carry gap forward to the next note_on
+                pending_gap = gap_ticks if i < pattern_len - 1 else 0
 
                 current_beat += dur_beats
                 current_scale_idx = target_idx  # Track position for next motif

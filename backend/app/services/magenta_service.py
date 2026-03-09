@@ -94,7 +94,7 @@ class MagentaService:
             offset = get_offset(target_key)
             if offset != 0:
                 for note in sequence.notes:
-                    note.pitch += offset
+                    note.pitch = max(21, min(108, note.pitch + offset))
 
             # Save to file
             tf = tempfile.NamedTemporaryFile(delete=False, suffix=".mid")
