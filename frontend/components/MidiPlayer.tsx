@@ -22,7 +22,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pianoNotes, setPianoNotes] = useState<PianoNote[]>([]);
-  const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet' | 'practice' | 'hidden'>('piano-roll');
+  const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet' | 'practice' | 'hidden'>('sheet');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [tempo, setTempo] = useState(120);
@@ -339,13 +339,13 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-8 shadow-sm">
-        <div className="flex justify-center gap-2 mb-2">
-          <div className="w-2.5 h-2.5 bg-coral-400 rounded-full anim-bounce-1" />
-          <div className="w-2.5 h-2.5 bg-warm-400 rounded-full anim-bounce-2" />
-          <div className="w-2.5 h-2.5 bg-coral-400 rounded-full anim-bounce-3" />
+      <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200/60 p-8 shadow-lg shadow-warm-100/50">
+        <div className="flex justify-center gap-2.5 mb-2">
+          <div className="w-3 h-3 bg-coral-400 rounded-full anim-bounce-1" />
+          <div className="w-3 h-3 bg-warm-400 rounded-full anim-bounce-2" />
+          <div className="w-3 h-3 bg-coral-400 rounded-full anim-bounce-3" />
         </div>
-        <p className="text-center text-sm text-stone-400">Loading player...</p>
+        <p className="text-center text-sm text-warm-400 font-medium">Loading player...</p>
       </div>
     );
   }
@@ -353,27 +353,27 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
   if (error) {
     return (
       <div className="rounded-2xl bg-coral-50 border border-coral-200 p-6">
-        <p className="text-coral-600 text-sm">{error}</p>
+        <p className="text-coral-600 text-sm font-medium">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 shadow-sm overflow-hidden">
+    <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200/60 shadow-lg shadow-warm-100/50 overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-warm-100 bg-warm-50">
+      <div className="px-4 py-3 border-b border-warm-100/60 bg-warm-50/50">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <h3 className="font-bold text-sm text-stone-700">Player</h3>
+          <h3 className="font-extrabold text-sm bg-gradient-to-r from-warm-600 to-coral-500 text-gradient">Player</h3>
           <div className="flex items-center gap-1.5">
-            <div className="flex bg-warm-100 rounded-lg p-0.5">
+            <div className="flex bg-warm-100/80 rounded-xl p-0.5">
               {viewModes.map(({ key, label }) => (
                 <button
                   key={key}
                   onClick={() => setViewMode(key)}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                     viewMode === key
-                      ? 'bg-white text-coral-500 shadow-sm'
-                      : 'text-stone-400 hover:text-stone-600'
+                      ? 'bg-white text-coral-500 shadow-md'
+                      : 'text-warm-400 hover:text-warm-600'
                   }`}
                 >
                   {label}
@@ -384,7 +384,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="px-3 py-1 rounded-lg text-xs font-semibold bg-mint-100 text-mint-500 hover:bg-mint-200 transition disabled:opacity-50"
+                className="px-3 py-1 rounded-lg text-xs font-bold bg-mint-100 text-mint-500 hover:bg-mint-200 transition disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Save'}
               </button>
@@ -392,7 +392,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           </div>
         </div>
         {saveMessage && (
-          <p className={`text-xs mt-1 ${saveMessage.includes('Failed') ? 'text-coral-600' : 'text-mint-500'}`}>
+          <p className={`text-xs mt-1 font-medium ${saveMessage.includes('Failed') ? 'text-coral-600' : 'text-mint-500'}`}>
             {saveMessage}
           </p>
         )}
@@ -432,7 +432,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           {/* Play/Pause */}
           <button
             onClick={handlePlayPause}
-            className="w-10 h-10 rounded-full bg-coral-400 hover:bg-coral-500 active:scale-90 text-white flex items-center justify-center transition-all shadow-sm"
+            className="w-10 h-10 rounded-full bg-gradient-to-br from-coral-400 to-coral-500 hover:from-coral-500 hover:to-coral-600 active:scale-90 text-white flex items-center justify-center transition-all shadow-lg shadow-coral-300/30"
           >
             {isPlaying ? (
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -449,7 +449,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           {/* Stop */}
           <button
             onClick={handleStop}
-            className="w-10 h-10 rounded-full bg-warm-200 hover:bg-warm-300 active:scale-90 text-stone-500 flex items-center justify-center transition-all"
+            className="w-10 h-10 rounded-full bg-warm-200 hover:bg-warm-300 active:scale-90 text-warm-500 flex items-center justify-center transition-all"
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
               <rect x="1" y="1" width="10" height="10" rx="1.5" />
@@ -467,7 +467,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
               onChange={(e) => handleSeek(parseFloat(e.target.value))}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-stone-400 mt-1">
+            <div className="flex justify-between text-xs text-warm-400 mt-1 font-medium">
               <span>{formatTime(progress)}</span>
               <span>{formatTime(duration)}</span>
             </div>
@@ -475,7 +475,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
 
           {/* Volume */}
           <div className="flex items-center gap-1.5 w-28">
-            <svg className="w-4 h-4 text-stone-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="w-4 h-4 text-warm-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clipRule="evenodd" />
             </svg>
             <input
@@ -490,8 +490,8 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
         </div>
 
         {/* Info bar */}
-        <div className="flex items-center gap-4 text-xs text-stone-400 border-t border-warm-100 pt-2">
-          <span className="font-medium text-stone-500">{filename}</span>
+        <div className="flex items-center gap-4 text-xs text-warm-400 border-t border-warm-100/60 pt-2 font-medium">
+          <span className="font-bold text-warm-500">{filename}</span>
           <span>{formatTime(duration)}</span>
           <span>{pianoNotes.length} notes</span>
           {editable ? (
@@ -504,7 +504,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
                 max="300"
                 value={tempo}
                 onChange={(e) => setTempo(Math.max(40, Math.min(300, parseInt(e.target.value) || 120)))}
-                className="w-14 px-1.5 py-0.5 bg-warm-50 border border-warm-200 rounded-lg text-xs text-stone-600 focus:ring-2 focus:ring-coral-300 focus:border-transparent outline-none"
+                className="w-14 px-1.5 py-0.5 bg-warm-50 border border-warm-200 rounded-lg text-xs text-warm-600 focus:ring-2 focus:ring-coral-300 focus:border-transparent outline-none"
               />
               <span>BPM</span>
             </div>

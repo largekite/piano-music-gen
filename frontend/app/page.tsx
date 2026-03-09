@@ -102,12 +102,12 @@ function ComposeFromScratch() {
   return (
     <div className="space-y-5">
       {/* Compose header card */}
-      <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-5 shadow-sm">
+      <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200/60 p-5 shadow-lg shadow-warm-100/50">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-1">
           <div>
-            <h2 className="font-bold text-lg text-warm-600">Your Canvas</h2>
-            <p className="text-sm text-stone-500">
-              Draw notes on the piano roll, view as sheet music, or practice along.
+            <h2 className="font-extrabold text-lg bg-gradient-to-r from-warm-600 to-coral-500 text-gradient">Your Canvas</h2>
+            <p className="text-sm text-warm-400">
+              Draw notes, view sheet music, or jam along!
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ function ComposeFromScratch() {
             <button
               onClick={handleSaveNew}
               disabled={isSaving || notes.length === 0}
-              className="px-4 py-2 rounded-xl font-semibold text-sm bg-coral-400 text-white hover:bg-coral-500 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+              className="px-4 py-2 rounded-xl font-bold text-sm bg-gradient-to-r from-coral-400 to-coral-500 text-white hover:from-coral-500 hover:to-coral-600 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-coral-300/30"
             >
               {isSaving ? 'Saving...' : 'Save as MIDI'}
             </button>
@@ -148,15 +148,15 @@ function ComposeFromScratch() {
       </div>
 
       {/* View mode pills */}
-      <div className="flex gap-1.5 bg-warm-100 rounded-xl p-1 w-fit">
+      <div className="flex gap-1.5 bg-warm-100/80 rounded-2xl p-1.5 w-fit">
         {viewModes.map(({ key, label, icon }) => (
           <button
             key={key}
             onClick={() => setViewMode(key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
               viewMode === key
-                ? 'bg-white text-coral-500 shadow-sm'
-                : 'text-stone-500 hover:text-stone-700'
+                ? 'bg-white text-coral-500 shadow-md'
+                : 'text-warm-400 hover:text-warm-600'
             }`}
           >
             <span className="mr-1.5">{icon}</span>{label}
@@ -290,10 +290,10 @@ function ScratchPlayer({ notes, tempo, isPlaying, progress, onIsPlayingChange, o
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
 
   return (
-    <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-4 flex items-center gap-4 shadow-sm">
+    <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200/60 p-4 flex items-center gap-4 shadow-lg shadow-warm-100/50">
       <button
         onClick={handlePlay}
-        className="w-12 h-12 rounded-full bg-coral-400 hover:bg-coral-500 active:scale-90 text-white flex items-center justify-center transition-all shadow-md"
+        className="w-12 h-12 rounded-full bg-gradient-to-br from-coral-400 to-coral-500 hover:from-coral-500 hover:to-coral-600 active:scale-90 text-white flex items-center justify-center transition-all shadow-lg shadow-coral-300/40 anim-pulse-glow"
       >
         {isPlaying ? (
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -346,46 +346,46 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-warm-50 via-white to-coral-50">
+    <div className="min-h-screen bg-gradient-to-br from-warm-50 via-white to-coral-50/30">
       {/* Header */}
-      <header className="bg-white/70 backdrop-blur-md border-b border-warm-200 sticky top-0 z-50">
+      <header className="bg-white/70 backdrop-blur-md border-b border-warm-200/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-coral-400 to-warm-400 flex items-center justify-center shadow-sm anim-float">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-coral-400 via-coral-500 to-warm-500 flex items-center justify-center shadow-lg shadow-coral-300/40 anim-float">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
                   <rect x="2" y="8" width="3" height="12" rx="0.5" />
                   <rect x="6" y="8" width="3" height="12" rx="0.5" />
                   <rect x="10" y="8" width="3" height="12" rx="0.5" />
                   <rect x="14" y="8" width="3" height="12" rx="0.5" />
                   <rect x="18" y="8" width="3" height="12" rx="0.5" />
-                  <rect x="4" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.25)" />
-                  <rect x="8" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.25)" />
-                  <rect x="15" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.25)" />
-                  <rect x="19" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.25)" />
+                  <rect x="4" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.2)" />
+                  <rect x="8" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.2)" />
+                  <rect x="15" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.2)" />
+                  <rect x="19" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.2)" />
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-stone-800">
+                <h1 className="text-xl font-extrabold bg-gradient-to-r from-coral-500 to-warm-500 text-gradient">
                   Piano Studio
                 </h1>
-                <p className="text-xs text-stone-400 hidden sm:block">Create, play, and practice</p>
+                <p className="text-xs text-warm-400 hidden sm:block font-medium">Create, play &amp; have fun!</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               <Link
                 href="/files"
-                className="px-4 py-2 rounded-xl text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-warm-100 transition-all"
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-warm-500 hover:text-coral-500 hover:bg-warm-100 transition-all"
               >
                 My Files
               </Link>
-              <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+              <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
                 isConnected
                   ? 'bg-mint-100 text-mint-500'
                   : 'bg-coral-100 text-coral-500'
               }`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-mint-400' : 'bg-coral-400'} animate-pulse`} />
+                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-mint-400' : 'bg-coral-400'} animate-pulse`} />
                 {isConnected ? 'Online' : 'Offline'}
               </div>
             </div>
@@ -401,15 +401,15 @@ export default function Home() {
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`flex-1 sm:flex-none px-6 py-3.5 rounded-2xl text-sm font-semibold transition-all ${
+              className={`flex-1 sm:flex-none px-6 py-3.5 rounded-2xl text-sm font-bold transition-all ${
                 activeTab === key
-                  ? 'bg-white text-stone-800 shadow-md border border-warm-200'
-                  : 'text-stone-400 hover:text-stone-600 hover:bg-white/50'
+                  ? 'bg-white text-warm-600 shadow-lg shadow-warm-200/50 border border-warm-200'
+                  : 'text-warm-400 hover:text-warm-600 hover:bg-white/50'
               }`}
             >
               {label}
               {activeTab === key && (
-                <span className="ml-2 text-xs font-normal text-stone-400">{desc}</span>
+                <span className="ml-2 text-xs font-medium text-coral-400">{desc}</span>
               )}
             </button>
           ))}
@@ -436,7 +436,7 @@ export default function Home() {
                 <ResultCard result={result} />
                 <button
                   onClick={reset}
-                  className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm bg-warm-100 hover:bg-warm-200 text-stone-600 transition-all"
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm bg-warm-100 hover:bg-warm-200 text-warm-600 transition-all"
                 >
                   Create Another
                 </button>
@@ -452,9 +452,9 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-warm-200 mt-16">
-        <div className="container mx-auto px-4 py-6 text-center text-stone-400 text-xs">
-          <p>Piano Music Studio &mdash; made with care</p>
+      <footer className="border-t border-warm-200/40 mt-16">
+        <div className="container mx-auto px-4 py-6 text-center text-warm-400 text-xs font-medium">
+          <p>Piano Music Studio &mdash; made with love</p>
         </div>
       </footer>
     </div>

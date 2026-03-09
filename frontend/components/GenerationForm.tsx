@@ -43,11 +43,11 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
     return true;
   };
 
-  const moods: { value: Mood; label: string; color: string }[] = [
-    { value: 'Happy', label: 'Happy', color: 'bg-warm-100 text-warm-600 border-warm-200' },
-    { value: 'Melancholic', label: 'Melancholic', color: 'bg-sky-50 text-sky-500 border-sky-200' },
-    { value: 'Dreamy', label: 'Dreamy', color: 'bg-plum-50 text-plum-500 border-plum-200' },
-    { value: 'Intense', label: 'Intense', color: 'bg-coral-50 text-coral-500 border-coral-200' },
+  const moods: { value: Mood; label: string; emoji: string; color: string }[] = [
+    { value: 'Happy', label: 'Happy', emoji: '\u2600', color: 'bg-plum-100 text-plum-600 border-plum-200' },
+    { value: 'Melancholic', label: 'Melancholic', emoji: '\u2601', color: 'bg-sky-100 text-sky-500 border-sky-200' },
+    { value: 'Dreamy', label: 'Dreamy', emoji: '\u2728', color: 'bg-warm-100 text-warm-600 border-warm-300' },
+    { value: 'Intense', label: 'Intense', emoji: '\u26A1', color: 'bg-coral-100 text-coral-600 border-coral-200' },
   ];
 
   const durations: { value: Duration; label: string }[] = [
@@ -56,13 +56,15 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
     { value: '2 min', label: '2 min' },
   ];
 
-  const selectClass = "w-full px-3 py-2.5 border border-warm-200 rounded-xl bg-white focus:ring-2 focus:ring-coral-300 focus:border-transparent outline-none text-stone-700 text-sm transition-all";
+  const selectClass = "w-full px-3 py-2.5 border border-warm-200 rounded-xl bg-white focus:ring-2 focus:ring-coral-300 focus:border-transparent outline-none text-warm-600 text-sm font-medium transition-all";
+
+  const cardClass = "rounded-2xl bg-white/80 backdrop-blur border border-warm-200/60 p-5 shadow-lg shadow-warm-100/50";
 
   return (
     <div className="space-y-5">
       {/* Engine selector */}
-      <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-5 shadow-sm">
-        <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">
+      <div className={cardClass}>
+        <label className="block text-xs font-bold text-warm-400 uppercase tracking-wider mb-2">
           Engine
         </label>
         <select
@@ -77,7 +79,7 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
         </select>
 
         {backend === 'magenta' && (
-          <p className="mt-2 text-xs text-warm-500 bg-warm-100 px-3 py-2 rounded-lg">
+          <p className="mt-2 text-xs text-plum-500 bg-plum-50 px-3 py-2 rounded-lg font-medium">
             Magenta only uses Key and Duration parameters.
           </p>
         )}
@@ -86,8 +88,8 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
       {/* Musical parameters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Style */}
-        <div className={`rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-4 shadow-sm transition-opacity ${!isParamUsed('style') ? 'opacity-40' : ''}`}>
-          <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">
+        <div className={`${cardClass} p-4 transition-opacity ${!isParamUsed('style') ? 'opacity-40' : ''}`}>
+          <label className="block text-xs font-bold text-warm-400 uppercase tracking-wider mb-2">
             Style
           </label>
           <select
@@ -104,8 +106,8 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
         </div>
 
         {/* Key */}
-        <div className={`rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-4 shadow-sm transition-opacity ${!isParamUsed('key') ? 'opacity-40' : ''}`}>
-          <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">
+        <div className={`${cardClass} p-4 transition-opacity ${!isParamUsed('key') ? 'opacity-40' : ''}`}>
+          <label className="block text-xs font-bold text-warm-400 uppercase tracking-wider mb-2">
             Key
           </label>
           <select
@@ -134,23 +136,23 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
         </div>
 
         {/* Mood */}
-        <div className={`rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-4 shadow-sm transition-opacity ${!isParamUsed('mood') ? 'opacity-40' : ''}`}>
-          <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">
+        <div className={`${cardClass} p-4 transition-opacity ${!isParamUsed('mood') ? 'opacity-40' : ''}`}>
+          <label className="block text-xs font-bold text-warm-400 uppercase tracking-wider mb-2">
             Mood
           </label>
           <div className="grid grid-cols-2 gap-1.5">
-            {moods.map(({ value, label, color }) => (
+            {moods.map(({ value, label, emoji, color }) => (
               <button
                 key={value}
                 onClick={() => setMood(value)}
-                className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
+                className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
                   mood === value
-                    ? `${color} shadow-sm`
-                    : 'bg-white text-stone-400 border-warm-200 hover:border-warm-300'
+                    ? `${color} shadow-md scale-[1.02]`
+                    : 'bg-white text-warm-300 border-warm-200 hover:border-warm-300 hover:text-warm-500'
                 }`}
                 disabled={isGenerating || !isParamUsed('mood')}
               >
-                {label}
+                <span className="mr-1">{emoji}</span>{label}
               </button>
             ))}
           </div>
@@ -158,12 +160,12 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
       </div>
 
       {/* Tempo */}
-      <div className={`rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-5 shadow-sm transition-opacity ${!isParamUsed('tempo') ? 'opacity-40' : ''}`}>
+      <div className={`${cardClass} transition-opacity ${!isParamUsed('tempo') ? 'opacity-40' : ''}`}>
         <div className="flex items-center justify-between mb-3">
-          <label className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
+          <label className="text-xs font-bold text-warm-400 uppercase tracking-wider">
             Tempo
           </label>
-          <span className="text-sm font-bold text-coral-500">{tempo} BPM</span>
+          <span className="text-sm font-extrabold bg-gradient-to-r from-coral-500 to-warm-500 text-gradient">{tempo} BPM</span>
         </div>
         <input
           type="range"
@@ -174,7 +176,7 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
           className="w-full"
           disabled={isGenerating || !isParamUsed('tempo')}
         />
-        <div className="flex justify-between text-xs text-stone-400 mt-1">
+        <div className="flex justify-between text-xs text-warm-300 mt-1 font-medium">
           <span>Slow</span>
           <span>Moderate</span>
           <span>Fast</span>
@@ -182,8 +184,8 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
       </div>
 
       {/* Duration */}
-      <div className={`rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-5 shadow-sm transition-opacity ${!isParamUsed('duration') ? 'opacity-40' : ''}`}>
-        <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wide mb-3">
+      <div className={`${cardClass} transition-opacity ${!isParamUsed('duration') ? 'opacity-40' : ''}`}>
+        <label className="block text-xs font-bold text-warm-400 uppercase tracking-wider mb-3">
           Duration
         </label>
         <div className="flex gap-2">
@@ -191,10 +193,10 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
             <button
               key={value}
               onClick={() => setDuration(value)}
-              className={`flex-1 px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${
+              className={`flex-1 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
                 duration === value
-                  ? 'bg-coral-400 text-white shadow-sm'
-                  : 'bg-warm-100 text-stone-500 hover:bg-warm-200'
+                  ? 'bg-gradient-to-r from-coral-400 to-coral-500 text-white shadow-lg shadow-coral-300/30'
+                  : 'bg-warm-100 text-warm-500 hover:bg-warm-200'
               }`}
               disabled={isGenerating}
             >
@@ -206,14 +208,14 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
 
       {/* Prompt (HuggingFace) */}
       {backend === 'huggingface' && (
-        <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-5 shadow-sm">
+        <div className={cardClass}>
           <div className="flex justify-between items-center mb-2">
-            <label className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
+            <label className="text-xs font-bold text-warm-400 uppercase tracking-wider">
               Description
             </label>
             <button
               onClick={handleGeneratePrompt}
-              className="text-xs font-medium text-coral-500 hover:text-coral-600 transition"
+              className="text-xs font-bold text-coral-500 hover:text-coral-600 transition"
               disabled={isGenerating}
             >
               Auto-generate
@@ -233,10 +235,10 @@ export default function GenerationForm({ onGenerate, isGenerating }: GenerationF
       <button
         onClick={handleGenerate}
         disabled={isGenerating}
-        className={`w-full py-4 rounded-2xl font-bold text-base transition-all ${
+        className={`w-full py-4 rounded-2xl font-extrabold text-base transition-all ${
           isGenerating
-            ? 'bg-warm-200 text-stone-400 cursor-not-allowed'
-            : 'bg-gradient-to-r from-coral-400 to-warm-400 hover:from-coral-500 hover:to-warm-500 text-white shadow-lg hover:shadow-xl active:scale-[0.99]'
+            ? 'bg-warm-200 text-warm-400 cursor-not-allowed'
+            : 'bg-gradient-to-r from-coral-400 via-coral-500 to-warm-500 hover:from-coral-500 hover:via-coral-600 hover:to-warm-600 text-white shadow-xl shadow-coral-300/30 hover:shadow-2xl hover:shadow-coral-400/30 active:scale-[0.99]'
         }`}
       >
         {isGenerating ? 'Creating your music...' : 'Generate Music'}
