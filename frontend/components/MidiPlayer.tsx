@@ -42,27 +42,6 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
     progressRef.current = progress;
   }, [progress]);
 
-  // Create a fresh sampler connected to the effects chain
-  const createSynth = useCallback(() => {
-    if (samplerRef.current) samplerRef.current.dispose();
-    const baseUrl = 'https://tonejs.github.io/audio/salamander/';
-    samplerRef.current = new Tone.Sampler({
-      urls: {
-        A0: 'A0.mp3', C1: 'C1.mp3', 'D#1': 'Ds1.mp3', 'F#1': 'Fs1.mp3',
-        A1: 'A1.mp3', C2: 'C2.mp3', 'D#2': 'Ds2.mp3', 'F#2': 'Fs2.mp3',
-        A2: 'A2.mp3', C3: 'C3.mp3', 'D#3': 'Ds3.mp3', 'F#3': 'Fs3.mp3',
-        A3: 'A3.mp3', C4: 'C4.mp3', 'D#4': 'Ds4.mp3', 'F#4': 'Fs4.mp3',
-        A4: 'A4.mp3', C5: 'C5.mp3', 'D#5': 'Ds5.mp3', 'F#5': 'Fs5.mp3',
-        A5: 'A5.mp3', C6: 'C6.mp3', 'D#6': 'Ds6.mp3', 'F#6': 'Fs6.mp3',
-        A6: 'A6.mp3', C7: 'C7.mp3', 'D#7': 'Ds7.mp3', 'F#7': 'Fs7.mp3',
-        A7: 'A7.mp3', C8: 'C8.mp3',
-      },
-      release: 1,
-      baseUrl,
-      onload: () => setSamplerReady(true),
-    }).connect(compressorRef.current!);
-    samplerRef.current.volume.value = (volume - 100) / 3;
-  }, [volume]);
 
   // Initialize effects chain and sampler
   useEffect(() => {
@@ -190,28 +169,29 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
         ? Math.max(...pianoNotes.map(n => n.time + n.duration))
         : duration;
 
-      const now = Tone.now();
       const offset = progressRef.current;
-      startTimeRef.current = now - offset;
 
       notesToPlay.forEach((note) => {
         if (note.time + note.duration > offset) {
-          const noteStart = Math.max(0, note.time - offset);
           const noteDur = note.time < offset
             ? note.duration - (offset - note.time)
             : note.duration;
-
           const vel = (note.velocity ?? 80) / 127;
+          const scheduleTime = Math.max(offset, note.time);
 
-          samplerRef.current?.triggerAttackRelease(
-            Tone.Frequency(note.midi, 'midi').toNote(),
-            Math.max(0.01, noteDur),
-            now + noteStart,
-            vel
-          );
+          Tone.Transport.schedule((time) => {
+            samplerRef.current?.triggerAttackRelease(
+              Tone.Frequency(note.midi, 'midi').toNote(),
+              Math.max(0.01, noteDur),
+              time,
+              vel
+            );
+          }, scheduleTime);
         }
       });
 
+      const now = Tone.now();
+      startTimeRef.current = now - offset;
       Tone.Transport.start(undefined, offset);
       setIsPlaying(true);
 
@@ -228,10 +208,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
 
   const handleStop = () => {
     stopPlayback();
-    // Dispose and recreate synth to cancel all scheduled triggerAttackRelease calls
-    if (compressorRef.current) {
-      createSynth();
-    }
+    samplerRef.current?.releaseAll();
   };
 
   const handleSeek = async (newProgress: number) => {
@@ -253,25 +230,27 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
         ? Math.max(...pianoNotes.map(n => n.time + n.duration))
         : duration;
 
-      const now = Tone.now();
-      startTimeRef.current = now - newProgress;
-
       notesToPlay.forEach((note) => {
         if (note.time + note.duration > newProgress) {
-          const noteStart = Math.max(0, note.time - newProgress);
           const noteDur = note.time < newProgress
             ? note.duration - (newProgress - note.time)
             : note.duration;
           const vel = (note.velocity ?? 80) / 127;
-          samplerRef.current?.triggerAttackRelease(
-            Tone.Frequency(note.midi, 'midi').toNote(),
-            Math.max(0.01, noteDur),
-            now + noteStart,
-            vel
-          );
+          const scheduleTime = Math.max(newProgress, note.time);
+
+          Tone.Transport.schedule((time) => {
+            samplerRef.current?.triggerAttackRelease(
+              Tone.Frequency(note.midi, 'midi').toNote(),
+              Math.max(0.01, noteDur),
+              time,
+              vel
+            );
+          }, scheduleTime);
         }
       });
 
+      const now = Tone.now();
+      startTimeRef.current = now - newProgress;
       Tone.Transport.start(undefined, newProgress);
       setIsPlaying(true);
 
@@ -433,7 +412,13 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           {/* Play/Pause */}
           <button
             onClick={handlePlayPause}
-            className="w-10 h-10 rounded-full bg-gradient-to-br from-coral-400 to-coral-500 hover:from-coral-500 hover:to-coral-600 active:scale-90 text-white flex items-center justify-center transition-all shadow-lg shadow-coral-300/30"
+            disabled={!samplerReady}
+            title={!samplerReady ? 'Loading piano samples...' : undefined}
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg shadow-coral-300/30 ${
+              samplerReady
+                ? 'bg-gradient-to-br from-coral-400 to-coral-500 hover:from-coral-500 hover:to-coral-600 active:scale-90 text-white'
+                : 'bg-warm-200 text-warm-400 cursor-wait'
+            }`}
           >
             {isPlaying ? (
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
