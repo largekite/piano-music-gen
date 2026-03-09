@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import type { PianoNote } from './PianoRoll';
 
 interface PracticeModeProps {
@@ -92,7 +92,6 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
   const [detectedFreq, setDetectedFreq] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [micError, setMicError] = useState<string | null>(null);
-  const [isWaiting, setIsWaiting] = useState(false);
   const [autoAdvance, setAutoAdvance] = useState(true);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -104,7 +103,7 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
   const holdCountRef = useRef(0);
   const lastDetectedRef = useRef<number | null>(null);
 
-  const noteSequence: NoteEvent[] = (() => {
+  const noteSequence = useMemo<NoteEvent[]>(() => {
     const beatsPerSecond = tempo / 60;
     const sorted = [...notes].sort((a, b) => a.time - b.time);
     const seq: NoteEvent[] = [];
@@ -121,7 +120,7 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
       lastBeat = beat;
     }
     return seq;
-  })();
+  }, [notes, tempo]);
 
   const currentNote = noteSequence[currentNoteIndex] || null;
 
@@ -164,7 +163,6 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
       bufRef.current = buf;
 
       setIsListening(true);
-      setIsWaiting(true);
     } catch {
       setMicError('Could not access microphone. Please allow microphone access and try again.');
     }

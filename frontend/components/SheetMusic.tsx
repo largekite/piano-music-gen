@@ -262,7 +262,7 @@ function quantizeNotes(notes: PianoNote[], tempo: number, keySig: KeySignature):
       staffPos,
       beat: Math.round(beat * 4) / 4,
       duration: Math.max(0.25, Math.round(durBeats * 4) / 4),
-      velocity: n.velocity,
+      velocity: n.velocity ?? 80,
       accidental,
       clef,
     };

@@ -34,6 +34,12 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
   const midiRef = useRef<Midi | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
+  const progressRef = useRef<number>(0);
+
+  // Keep progressRef in sync with state
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
 
   // Initialize a more piano-like synthesizer
   useEffect(() => {
@@ -154,7 +160,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
         : duration;
 
       const now = Tone.now();
-      const offset = progress;
+      const offset = progressRef.current;
       startTimeRef.current = now - offset;
 
       notesToPlay.forEach((note) => {
@@ -196,12 +202,55 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
     }
   };
 
-  const handleSeek = (newProgress: number) => {
+  const handleSeek = async (newProgress: number) => {
     const wasPlaying = isPlaying;
     if (wasPlaying) {
       handleStop();
     }
     setProgress(newProgress);
+    if (wasPlaying) {
+      // Wait a tick for state to settle, then resume from new position
+      await new Promise(r => setTimeout(r, 0));
+      // Manually trigger play from the new position
+      if (!synthRef.current) return;
+      await Tone.start();
+      Tone.Transport.cancel();
+
+      const notesToPlay = pianoNotes.length > 0 ? pianoNotes : [];
+      const playDuration = pianoNotes.length > 0
+        ? Math.max(...pianoNotes.map(n => n.time + n.duration))
+        : duration;
+
+      const now = Tone.now();
+      startTimeRef.current = now - newProgress;
+
+      notesToPlay.forEach((note) => {
+        if (note.time + note.duration > newProgress) {
+          const noteStart = Math.max(0, note.time - newProgress);
+          const noteDur = note.time < newProgress
+            ? note.duration - (newProgress - note.time)
+            : note.duration;
+          const vel = (note.velocity || 80) / 127;
+          synthRef.current?.triggerAttackRelease(
+            Tone.Frequency(note.midi, 'midi').toFrequency(),
+            Math.max(0.01, noteDur),
+            now + noteStart,
+            vel
+          );
+        }
+      });
+
+      Tone.Transport.start(undefined, newProgress);
+      setIsPlaying(true);
+
+      progressIntervalRef.current = setInterval(() => {
+        const elapsed = Tone.now() - startTimeRef.current;
+        setProgress(elapsed);
+        if (elapsed >= playDuration + 0.5) {
+          stopPlayback();
+        }
+      }, 50);
+    }
   };
 
   const handleNotesChange = useCallback((newNotes: PianoNote[]) => {

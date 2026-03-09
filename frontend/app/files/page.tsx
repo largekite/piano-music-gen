@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { filesApi } from '@/lib/api/client';
 import type { MidiFileMetadata } from '@/types/api';
@@ -13,18 +13,14 @@ export default function FilesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    loadFiles();
-  }, [page]);
-
-  const loadFiles = async () => {
+  const loadFiles = useCallback(async (overridePage?: number, overrideSearch?: string) => {
     try {
       setIsLoading(true);
       setError(null);
       const response = await filesApi.listFiles({
-        page,
+        page: overridePage ?? page,
         page_size: 12,
-        search: searchQuery || undefined,
+        search: (overrideSearch ?? searchQuery) || undefined,
         sort_by: 'created_at',
         sort_order: 'desc',
       });
@@ -37,11 +33,15 @@ export default function FilesPage() {
       setError('Failed to load files');
       setIsLoading(false);
     }
-  };
+  }, [page, searchQuery]);
+
+  useEffect(() => {
+    loadFiles();
+  }, [loadFiles]);
 
   const handleSearch = () => {
     setPage(1);
-    loadFiles();
+    loadFiles(1, searchQuery);
   };
 
   const handleDelete = async (fileId: string) => {
@@ -99,7 +99,7 @@ export default function FilesPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search your files..."
               className="flex-1 px-4 py-2.5 border border-warm-200 rounded-xl bg-white focus:ring-2 focus:ring-coral-300 focus:border-transparent outline-none text-sm"
             />

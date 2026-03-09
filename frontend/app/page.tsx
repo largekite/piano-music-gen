@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useGeneration } from '@/lib/hooks/useGeneration';
 import GenerationForm from '@/components/GenerationForm';
 import ProgressDisplay from '@/components/ProgressDisplay';
@@ -234,6 +234,11 @@ function ScratchPlayer({ notes, tempo, isPlaying, progress, onIsPlayingChange, o
       synthRef.current = null;
     }
   };
+
+  // Cleanup on unmount to prevent interval/synth leaks
+  useEffect(() => {
+    return () => { cleanup(); };
+  }, []);
 
   const handlePlay = async () => {
     const Tone = await import('tone');
