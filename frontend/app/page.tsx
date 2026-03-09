@@ -6,7 +6,7 @@ import GenerationForm from '@/components/GenerationForm';
 import ProgressDisplay from '@/components/ProgressDisplay';
 import ResultCard from '@/components/ResultCard';
 import PianoRoll, { PianoNote } from '@/components/PianoRoll';
-import SheetMusic from '@/components/SheetMusic';
+import SheetMusic, { KeySignature } from '@/components/SheetMusic';
 import Link from 'next/link';
 
 function ComposeFromScratch() {
@@ -15,6 +15,7 @@ function ComposeFromScratch() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<{ fileId: string; filename: string } | null>(null);
   const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet'>('piano-roll');
+  const [keySignature, setKeySignature] = useState<KeySignature>('C major');
 
   const duration = notes.length > 0
     ? Math.max(...notes.map(n => n.time + n.duration)) + 4
@@ -171,6 +172,9 @@ function ComposeFromScratch() {
         <SheetMusic
           notes={notes}
           tempo={tempo}
+          keySignature={keySignature}
+          onNotesChange={setNotes}
+          onKeySignatureChange={setKeySignature}
         />
       )}
 

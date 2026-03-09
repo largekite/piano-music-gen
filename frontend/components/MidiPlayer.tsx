@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
 import PianoRoll, { PianoNote } from './PianoRoll';
-import SheetMusic from './SheetMusic';
+import SheetMusic, { KeySignature } from './SheetMusic';
 
 interface MidiPlayerProps {
   midiUrl: string;
@@ -25,6 +25,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [tempo, setTempo] = useState(120);
+  const [keySignature, setKeySignature] = useState<KeySignature>('C major');
 
   const synthRef = useRef<Tone.PolySynth | null>(null);
   const reverbRef = useRef<Tone.Reverb | null>(null);
@@ -324,6 +325,9 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           tempo={tempo}
           currentTime={progress}
           isPlaying={isPlaying}
+          keySignature={keySignature}
+          onNotesChange={editable ? handleNotesChange : undefined}
+          onKeySignatureChange={setKeySignature}
         />
       )}
 
