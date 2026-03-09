@@ -99,17 +99,21 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
 
   // Load MIDI file
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadMidi() {
       try {
         setIsLoading(true);
         setError(null);
 
-        const response = await fetch(midiUrl);
+        const response = await fetch(midiUrl, { signal: controller.signal });
         if (!response.ok) {
           throw new Error(`Failed to load MIDI file: ${response.statusText}`);
         }
 
         const arrayBuffer = await response.arrayBuffer();
+        if (controller.signal.aborted) return;
+
         const midi = new Midi(arrayBuffer);
         midiRef.current = midi;
         setDuration(midi.duration);
@@ -135,6 +139,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
         setPianoNotes(extractedNotes);
         setIsLoading(false);
       } catch (err) {
+        if (controller.signal.aborted) return;
         console.error('Error loading MIDI:', err);
         setError(err instanceof Error ? err.message : 'Failed to load MIDI file');
         setIsLoading(false);
@@ -142,6 +147,8 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
     }
 
     loadMidi();
+
+    return () => controller.abort();
   }, [midiUrl]);
 
   // Update volume

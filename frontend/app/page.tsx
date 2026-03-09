@@ -221,8 +221,10 @@ function ScratchPlayer({ notes, tempo, isPlaying, progress, onIsPlayingChange, o
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const synthRef = useRef<any>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const durationRef = useRef(0);
 
   const duration = notes.length > 0 ? Math.max(...notes.map(n => n.time + n.duration)) : 0;
+  durationRef.current = duration;
 
   const cleanup = () => {
     if (intervalRef.current) {
@@ -277,7 +279,7 @@ function ScratchPlayer({ notes, tempo, isPlaying, progress, onIsPlayingChange, o
     intervalRef.current = setInterval(() => {
       const elapsed = Tone.now() - startTime;
       onProgressChange(elapsed);
-      if (elapsed > duration + 0.5) {
+      if (elapsed > durationRef.current + 0.5) {
         cleanup();
         onIsPlayingChange(false);
         onProgressChange(0);
