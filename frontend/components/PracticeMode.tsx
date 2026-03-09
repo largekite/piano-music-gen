@@ -63,7 +63,7 @@ function autoCorrelate(buf: any, sampleRate: number): number {
   }
 
   let d = 0;
-  while (d < size && c[d] > c[d + 1]) d++;
+  while (d < size - 1 && c[d] > c[d + 1]) d++;
 
   let maxVal = -1;
   let maxPos = -1;

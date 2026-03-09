@@ -342,16 +342,14 @@ class SimpleMidiService:
                     [2.0, 1.0, 1.0],
                 ]
                 pattern = random.choice(comp_patterns)
+                pending_gap = 0
                 for dur in pattern:
                     if current_beat >= total_beats:
                         break
                     vel = chord_velocity + random.randint(-10, 10)
                     vel = max(25, min(110, vel))
-                    self._play_chord_sustained(track, chord_notes, vel, ticks_per_beat, dur * 0.8)
-                    # Gap
-                    gap = int(dur * 0.2 * ticks_per_beat)
-                    if gap > 0:
-                        track.append(mido.Message('note_on', note=0, velocity=0, channel=1, time=gap))
+                    self._play_chord_sustained(track, chord_notes, vel, ticks_per_beat, dur * 0.8, time_offset=pending_gap)
+                    pending_gap = int(dur * 0.2 * ticks_per_beat)
                     current_beat += dur
 
             elif style == "Pop":
@@ -363,6 +361,7 @@ class SimpleMidiService:
                 ]
                 arp = random.choice(arp_patterns)
                 beat_dur = 1.0
+                pending_gap = 0
                 for idx in arp:
                     if current_beat >= total_beats:
                         break
@@ -372,11 +371,9 @@ class SimpleMidiService:
                     vel = max(25, min(110, vel))
                     dur_ticks = int(beat_dur * ticks_per_beat * 0.85)
                     gap_ticks = int(beat_dur * ticks_per_beat * 0.15)
-                    track.append(mido.Message('note_on', note=note, velocity=vel, channel=1, time=0))
+                    track.append(mido.Message('note_on', note=note, velocity=vel, channel=1, time=pending_gap))
                     track.append(mido.Message('note_off', note=note, velocity=0, channel=1, time=dur_ticks))
-                    if gap_ticks > 0:
-                        # Silence gap handled by next event delta
-                        pass
+                    pending_gap = gap_ticks
                     current_beat += beat_dur
 
             else:  # Classical
@@ -385,6 +382,7 @@ class SimpleMidiService:
                     # Alberti bass: root-5th-3rd-5th
                     alberti = [0, 2, 1, 2] if len(chord_notes) >= 3 else [0, 1, 0, 1]
                     beat_dur = 1.0
+                    pending_gap = 0
                     for idx in alberti:
                         if current_beat >= total_beats:
                             break
@@ -393,8 +391,10 @@ class SimpleMidiService:
                         vel = chord_velocity + random.randint(-8, 8)
                         vel = max(25, min(110, vel))
                         dur_ticks = int(beat_dur * ticks_per_beat * 0.9)
-                        track.append(mido.Message('note_on', note=note, velocity=vel, channel=1, time=0))
+                        gap_ticks = int(beat_dur * ticks_per_beat * 0.1)
+                        track.append(mido.Message('note_on', note=note, velocity=vel, channel=1, time=pending_gap))
                         track.append(mido.Message('note_off', note=note, velocity=0, channel=1, time=dur_ticks))
+                        pending_gap = gap_ticks
                         current_beat += beat_dur
                 else:
                     # Block chord on beat 1, single bass on beat 3
@@ -414,15 +414,17 @@ class SimpleMidiService:
         chord_notes: List[int],
         velocity: int,
         ticks_per_beat: int,
-        duration_beats: float
+        duration_beats: float,
+        time_offset: int = 0,
     ):
         """Play all notes of a chord simultaneously and sustain."""
         duration_ticks = int(duration_beats * ticks_per_beat)
         velocity = max(25, min(127, velocity))
 
-        # Note on for all chord notes (first has time=0, rest have time=0 too for simultaneous)
+        # Note on for all chord notes (first has time_offset for gap from previous, rest 0 for simultaneous)
         for i, note in enumerate(chord_notes):
-            track.append(mido.Message('note_on', note=note, velocity=velocity, channel=1, time=0))
+            track.append(mido.Message('note_on', note=note, velocity=velocity, channel=1,
+                                      time=time_offset if i == 0 else 0))
 
         # Note off for all (first off has the full duration, rest have time=0)
         for i, note in enumerate(chord_notes):
