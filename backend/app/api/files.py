@@ -7,8 +7,14 @@ from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 from typing import Optional
 
-from ..models import MidiFileMetadata, PaginatedResponse, BackendType, MusicStyle, Mood, MusicKey
+from ..models import MidiFileMetadata, PaginatedResponse, BackendType, MusicStyle, Mood, MusicKey, MidiEditRequest
 from ..config import settings
+
+try:
+    import mido
+    MIDO_AVAILABLE = True
+except ImportError:
+    MIDO_AVAILABLE = False
 
 router = APIRouter()
 
@@ -168,3 +174,120 @@ async def search_files(q: str):
             })
 
     return {"results": results, "total": len(results)}
+
+
+@router.get("/{file_id}/notes")
+async def get_file_notes(file_id: str):
+    """Get all notes from a MIDI file for visualization and editing."""
+    if not MIDO_AVAILABLE:
+        raise HTTPException(status_code=500, detail="mido library not available")
+
+    midi_files = glob.glob(os.path.join(settings.GENERATED_MIDI_PATH, "*.mid"))
+
+    for filepath in midi_files:
+        if file_id in filepath:
+            mid = mido.MidiFile(filepath)
+            notes = []
+            tempo = 500000  # default 120 BPM
+
+            for track_idx, track in enumerate(mid.tracks):
+                current_time = 0  # in ticks
+                active_notes = {}  # note -> (start_tick, velocity)
+
+                for msg in track:
+                    current_time += msg.time
+
+                    if msg.type == 'set_tempo':
+                        tempo = msg.tempo
+
+                    if msg.type == 'note_on' and msg.velocity > 0:
+                        active_notes[msg.note] = (current_time, msg.velocity)
+                    elif msg.type == 'note_off' or (msg.type == 'note_on' and msg.velocity == 0):
+                        if msg.note in active_notes:
+                            start_tick, velocity = active_notes.pop(msg.note)
+                            dur_ticks = current_time - start_tick
+                            # Convert ticks to seconds
+                            start_sec = mido.tick2second(start_tick, mid.ticks_per_beat, tempo)
+                            dur_sec = mido.tick2second(dur_ticks, mid.ticks_per_beat, tempo)
+                            if dur_sec > 0:
+                                notes.append({
+                                    "midi": msg.note,
+                                    "time": round(start_sec, 4),
+                                    "duration": round(dur_sec, 4),
+                                    "velocity": velocity,
+                                    "track": track_idx,
+                                })
+
+            # Sort by time
+            notes.sort(key=lambda n: (n["time"], n["midi"]))
+
+            bpm = round(mido.tempo2bpm(tempo))
+            total_duration = max((n["time"] + n["duration"] for n in notes), default=0)
+
+            return {
+                "file_id": file_id,
+                "notes": notes,
+                "tempo": bpm,
+                "duration": round(total_duration, 2),
+                "ticks_per_beat": mid.ticks_per_beat,
+                "track_count": len(mid.tracks),
+                "note_count": len(notes),
+            }
+
+    raise HTTPException(status_code=404, detail="File not found")
+
+
+@router.put("/{file_id}/notes")
+async def update_file_notes(file_id: str, edit_request: MidiEditRequest):
+    """Update a MIDI file with new notes (from the piano roll editor)."""
+    if not MIDO_AVAILABLE:
+        raise HTTPException(status_code=500, detail="mido library not available")
+
+    midi_files = glob.glob(os.path.join(settings.GENERATED_MIDI_PATH, "*.mid"))
+
+    for filepath in midi_files:
+        if file_id in filepath:
+            # Build a new MIDI file from the provided notes
+            mid = mido.MidiFile(ticks_per_beat=480)
+            track = mido.MidiTrack()
+            mid.tracks.append(track)
+
+            tempo_us = mido.bpm2tempo(edit_request.tempo)
+            track.append(mido.MetaMessage('set_tempo', tempo=tempo_us, time=0))
+            track.append(mido.Message('program_change', program=0, channel=0, time=0))
+
+            # Convert notes to MIDI events
+            events = []
+            for note in edit_request.notes:
+                start_tick = mido.second2tick(note.time, 480, tempo_us)
+                dur_tick = mido.second2tick(note.duration, 480, tempo_us)
+                dur_tick = max(1, dur_tick)
+                events.append(('on', start_tick, note.midi, note.velocity))
+                events.append(('off', start_tick + dur_tick, note.midi, 0))
+
+            # Sort events by tick time
+            events.sort(key=lambda e: (e[1], 0 if e[0] == 'off' else 1))
+
+            prev_tick = 0
+            for event_type, tick, note_num, vel in events:
+                delta = max(0, tick - prev_tick)
+                if event_type == 'on':
+                    track.append(mido.Message('note_on', note=note_num, velocity=vel, channel=0, time=delta))
+                else:
+                    track.append(mido.Message('note_off', note=note_num, velocity=0, channel=0, time=delta))
+                prev_tick = tick
+
+            track.append(mido.MetaMessage('end_of_track', time=0))
+
+            mid.save(filepath)
+            file_size = os.path.getsize(filepath)
+
+            return {
+                "file_id": file_id,
+                "filename": os.path.basename(filepath),
+                "file_size": file_size,
+                "note_count": len(edit_request.notes),
+                "message": "MIDI file updated successfully",
+            }
+
+    raise HTTPException(status_code=404, detail="File not found")

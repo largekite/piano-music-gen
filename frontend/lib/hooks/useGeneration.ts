@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type {
   MusicParameters,
@@ -24,6 +24,7 @@ interface GenerationState {
 
 export function useGeneration() {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const lastParamsRef = useRef<MusicParameters | null>(null);
   const [state, setState] = useState<GenerationState>({
     jobId: null,
     isGenerating: false,
@@ -71,8 +72,8 @@ export function useGeneration() {
           file_id: data.fileId,
           filename: data.filename,
           file_size: data.fileSize,
-          backend: 'huggingface', // Will be updated from actual backend
-          parameters: {} as MusicParameters, // Will be filled from job
+          backend: lastParamsRef.current?.backend || 'huggingface',
+          parameters: lastParamsRef.current || {} as MusicParameters,
           created_at: new Date().toISOString(),
         },
       }));
@@ -109,6 +110,7 @@ export function useGeneration() {
       }
 
       const jobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      lastParamsRef.current = parameters;
 
       setState({
         jobId,

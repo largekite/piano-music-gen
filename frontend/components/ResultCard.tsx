@@ -17,52 +17,53 @@ export default function ResultCard({ result }: ResultCardProps) {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Success Message */}
-      <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-2xl">✅</span>
-          <div>
-            <h3 className="font-bold text-green-800">Generation Complete!</h3>
-            <p className="text-sm text-green-700">Your piano music has been successfully generated.</p>
+    <div className="space-y-5">
+      {/* Success banner */}
+      <div className="rounded-2xl bg-gradient-to-r from-mint-100 to-mint-50 border border-mint-200 p-5 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-mint-400 flex items-center justify-center shadow-sm">
+            <svg className="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-mint-500">Your piece is ready!</h3>
+            <p className="text-sm text-mint-400">Listen, edit, or download below.</p>
           </div>
         </div>
       </div>
 
-      {/* File Metadata */}
-      <div className="bg-white rounded-lg shadow p-6 space-y-3">
-        <h3 className="font-bold text-lg text-gray-800">📄 File Information</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-          <div>
-            <span className="font-medium text-gray-600">Filename:</span>
-            <p className="text-gray-800">{result.filename}</p>
+      {/* File info + download */}
+      <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h3 className="font-bold text-stone-700">{result.filename}</h3>
+            <div className="flex flex-wrap gap-3 text-xs text-stone-400">
+              <span>{formatFileSize(result.file_size)}</span>
+              <span className="capitalize">{result.backend}</span>
+              <span>{new Date(result.created_at).toLocaleDateString()}</span>
+            </div>
           </div>
-          <div>
-            <span className="font-medium text-gray-600">Size:</span>
-            <p className="text-gray-800">{formatFileSize(result.file_size)}</p>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Backend:</span>
-            <p className="text-gray-800 capitalize">{result.backend}</p>
-          </div>
-          <div>
-            <span className="font-medium text-gray-600">Created:</span>
-            <p className="text-gray-800">{new Date(result.created_at).toLocaleString()}</p>
-          </div>
+          <a
+            href={downloadUrl}
+            download={result.filename}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-coral-400 hover:bg-coral-500 active:scale-95 text-white font-semibold text-sm transition-all shadow-sm"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+            Download MIDI
+          </a>
         </div>
-
-        {/* Download Button */}
-        <a
-          href={downloadUrl}
-          download={result.filename}
-          className="inline-block w-full md:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-lg shadow transition text-center"
-        >
-          ⬇️ Download MIDI File
-        </a>
       </div>
 
-      {/* MIDI Player */}
-      <MidiPlayer midiUrl={downloadUrl} filename={result.filename} />
+      {/* Player */}
+      <MidiPlayer
+        midiUrl={downloadUrl}
+        filename={result.filename}
+        fileId={result.file_id}
+        editable={true}
+      />
     </div>
   );
 }

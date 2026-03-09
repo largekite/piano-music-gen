@@ -7,7 +7,7 @@ export type BackendType = 'huggingface' | 'magenta' | 'simple';
 
 export type MusicStyle = 'Classical' | 'Jazz' | 'Pop' | 'Ambient';
 
-export type MusicKey = 'C major' | 'D major' | 'G major' | 'A minor';
+export type MusicKey = 'C major' | 'D major' | 'E major' | 'F major' | 'G major' | 'A major' | 'Bb major' | 'A minor' | 'C minor' | 'D minor' | 'E minor' | 'G minor';
 
 export type Mood = 'Happy' | 'Melancholic' | 'Dreamy' | 'Intense';
 
