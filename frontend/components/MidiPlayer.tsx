@@ -5,6 +5,7 @@ import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
 import PianoRoll, { PianoNote } from './PianoRoll';
 import SheetMusic, { KeySignature } from './SheetMusic';
+import PracticeMode from './PracticeMode';
 
 interface MidiPlayerProps {
   midiUrl: string;
@@ -21,7 +22,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pianoNotes, setPianoNotes] = useState<PianoNote[]>([]);
-  const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet' | 'hidden'>('piano-roll');
+  const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet' | 'practice' | 'hidden'>('piano-roll');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [tempo, setTempo] = useState(120);
@@ -275,7 +276,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-lg text-gray-800">MIDI Player</h3>
           <div className="flex items-center gap-2">
-            {(['piano-roll', 'sheet', 'hidden'] as const).map((mode) => (
+            {(['piano-roll', 'sheet', 'practice', 'hidden'] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
@@ -285,7 +286,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                {mode === 'piano-roll' ? 'Piano Roll' : mode === 'sheet' ? 'Sheet Music' : 'Hide'}
+                {mode === 'piano-roll' ? 'Piano Roll' : mode === 'sheet' ? 'Sheet Music' : mode === 'practice' ? 'Practice' : 'Hide'}
               </button>
             ))}
             {editable && fileId && (
@@ -329,6 +330,11 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           onNotesChange={editable ? handleNotesChange : undefined}
           onKeySignatureChange={setKeySignature}
         />
+      )}
+
+      {/* Practice Mode */}
+      {viewMode === 'practice' && (
+        <PracticeMode notes={pianoNotes} tempo={tempo} />
       )}
 
       {/* Playback Controls */}

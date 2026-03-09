@@ -7,6 +7,7 @@ import ProgressDisplay from '@/components/ProgressDisplay';
 import ResultCard from '@/components/ResultCard';
 import PianoRoll, { PianoNote } from '@/components/PianoRoll';
 import SheetMusic, { KeySignature } from '@/components/SheetMusic';
+import PracticeMode from '@/components/PracticeMode';
 import Link from 'next/link';
 
 function ComposeFromScratch() {
@@ -14,7 +15,7 @@ function ComposeFromScratch() {
   const [tempo, setTempo] = useState(120);
   const [isSaving, setIsSaving] = useState(false);
   const [saveResult, setSaveResult] = useState<{ fileId: string; filename: string } | null>(null);
-  const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet'>('piano-roll');
+  const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet' | 'practice'>('piano-roll');
   const [keySignature, setKeySignature] = useState<KeySignature>('C major');
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackTime, setPlaybackTime] = useState(0);
@@ -144,7 +145,7 @@ function ComposeFromScratch() {
 
       {/* View Toggle */}
       <div className="flex gap-2">
-        {(['piano-roll', 'sheet'] as const).map((mode) => (
+        {(['piano-roll', 'sheet', 'practice'] as const).map((mode) => (
           <button
             key={mode}
             onClick={() => setViewMode(mode)}
@@ -154,7 +155,7 @@ function ComposeFromScratch() {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            {mode === 'piano-roll' ? 'Piano Roll' : 'Sheet Music'}
+            {mode === 'piano-roll' ? 'Piano Roll' : mode === 'sheet' ? 'Sheet Music' : 'Practice'}
           </button>
         ))}
       </div>
@@ -182,6 +183,11 @@ function ComposeFromScratch() {
           onNotesChange={setNotes}
           onKeySignatureChange={setKeySignature}
         />
+      )}
+
+      {/* Practice Mode */}
+      {viewMode === 'practice' && (
+        <PracticeMode notes={notes} tempo={tempo} />
       )}
 
       {/* Playback for composed notes */}
