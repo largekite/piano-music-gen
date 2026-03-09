@@ -80,6 +80,7 @@ export default function PianoRoll({
     currentX: number;
     currentY: number;
     origNotes?: PianoNote[]; // original positions for move
+    preMoveFull?: PianoNote[]; // full notes snapshot before move started (for undo)
   } | null>(null);
 
   const pixelsPerSecond = ZOOM_LEVELS[zoomIndex];
@@ -360,12 +361,13 @@ export default function PianoRoll({
         } else if (!selectedNotes.has(noteIdx)) {
           setSelectedNotes(new Set([noteIdx]));
         }
-        // Start move drag
-        const origNotes = Array.from(selectedNotes.has(noteIdx) ? selectedNotes : new Set([noteIdx]))
-          .map(i => ({ ...notes[i] }));
+        // Start move drag — save full snapshot for undo
+        const activeSelection = selectedNotes.has(noteIdx) ? selectedNotes : new Set([noteIdx]);
+        const origNotes = Array.from(activeSelection).map(i => ({ ...notes[i] }));
         setDragState({
           type: 'move', startX: x, startY: y, currentX: x, currentY: y,
           origNotes,
+          preMoveFull: notes.map(n => ({ ...n })),
         });
       } else {
         // Start selection rectangle
@@ -445,8 +447,10 @@ export default function PianoRoll({
       onNotesChange([...notes, { midi, time: t, duration: dur, velocity: drawVelocity }]);
     }
 
-    if (dragState.type === 'move') {
-      pushUndo();
+    if (dragState.type === 'move' && dragState.preMoveFull) {
+      // Push the pre-move snapshot so undo restores to before the drag
+      setUndoStack(prev => [...prev.slice(-MAX_UNDO + 1), dragState.preMoveFull!]);
+      setRedoStack([]);
     }
 
     setDragState(null);
@@ -792,7 +796,16 @@ export default function PianoRoll({
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
-          onMouseLeave={() => { if (dragState) setDragState(null); }}
+          onMouseLeave={() => {
+            if (dragState) {
+              // For move drags, push undo snapshot before cancelling
+              if (dragState.type === 'move' && dragState.preMoveFull) {
+                setUndoStack(prev => [...prev.slice(-MAX_UNDO + 1), dragState.preMoveFull!]);
+                setRedoStack([]);
+              }
+              setDragState(null);
+            }
+          }}
           className={editable ? (tool === 'draw' ? 'cursor-crosshair' : tool === 'erase' ? 'cursor-pointer' : 'cursor-default') : 'cursor-default'}
           style={{ display: 'block' }}
         />

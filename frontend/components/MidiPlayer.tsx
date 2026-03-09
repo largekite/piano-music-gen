@@ -41,7 +41,30 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
     progressRef.current = progress;
   }, [progress]);
 
-  // Initialize a more piano-like synthesizer
+  // Create a fresh synth connected to the effects chain
+  const createSynth = useCallback(() => {
+    if (synthRef.current) synthRef.current.dispose();
+    synthRef.current = new Tone.PolySynth(Tone.Synth, {
+      volume: -8,
+      oscillator: {
+        type: 'fmtriangle',
+        modulationType: 'sine',
+        harmonicity: 3.01,
+        modulationIndex: 14,
+      },
+      envelope: {
+        attack: 0.005,
+        decay: 0.3,
+        sustain: 0.2,
+        release: 1.5,
+      },
+    }).connect(compressorRef.current!);
+    if (synthRef.current) {
+      synthRef.current.volume.value = (volume - 100) / 3;
+    }
+  }, [volume]);
+
+  // Initialize effects chain and synth
   useEffect(() => {
     const reverb = new Tone.Reverb({ decay: 2.5, wet: 0.3 }).toDestination();
     reverbRef.current = reverb;
@@ -197,8 +220,9 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
 
   const handleStop = () => {
     stopPlayback();
-    if (synthRef.current) {
-      synthRef.current.releaseAll();
+    // Dispose and recreate synth to cancel all scheduled triggerAttackRelease calls
+    if (compressorRef.current) {
+      createSynth();
     }
   };
 

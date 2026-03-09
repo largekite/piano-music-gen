@@ -222,7 +222,7 @@ function ScratchPlayer({ notes, tempo, isPlaying, progress, onIsPlayingChange, o
   const synthRef = useRef<any>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const duration = Math.max(...notes.map(n => n.time + n.duration));
+  const duration = notes.length > 0 ? Math.max(...notes.map(n => n.time + n.duration)) : 0;
 
   const cleanup = () => {
     if (intervalRef.current) {
