@@ -268,7 +268,7 @@ export default function SheetMusic({
       // Style the SVG
       const svgEl = container.querySelector('svg');
       if (svgEl) {
-        svgEl.style.background = '#fefcf8';
+        svgEl.style.background = '#faf7ff';
         svgEl.style.borderRadius = '0 0 16px 16px';
       }
 
@@ -558,7 +558,7 @@ export default function SheetMusic({
     playhead.setAttribute('y1', String(y - 5));
     playhead.setAttribute('x2', String(playX));
     playhead.setAttribute('y2', String(y + 200));
-    playhead.setAttribute('stroke', 'rgba(220, 80, 60, 0.5)');
+    playhead.setAttribute('stroke', 'rgba(255, 77, 155, 0.6)');
     playhead.setAttribute('stroke-width', '2.5');
     playhead.setAttribute('stroke-linecap', 'round');
     svg.appendChild(playhead);
@@ -570,7 +570,7 @@ export default function SheetMusic({
     highlight.setAttribute('y', String(y - 5));
     highlight.setAttribute('width', String(STAVE_WIDTH));
     highlight.setAttribute('height', String(210));
-    highlight.setAttribute('fill', 'rgba(255, 200, 150, 0.12)');
+    highlight.setAttribute('fill', 'rgba(180, 150, 247, 0.12)');
     highlight.setAttribute('rx', '4');
     svg.insertBefore(highlight, svg.firstChild?.nextSibling || null);
 
@@ -610,7 +610,7 @@ export default function SheetMusic({
       canvas.height = img.height * dpr;
       const ctx = canvas.getContext('2d')!;
       ctx.scale(dpr, dpr);
-      ctx.fillStyle = '#fefcf8';
+      ctx.fillStyle = '#faf7ff';
       ctx.fillRect(0, 0, img.width, img.height);
       ctx.drawImage(img, 0, 0);
 
@@ -701,7 +701,7 @@ export default function SheetMusic({
       </div>
       <div
         ref={scrollRef}
-        className="overflow-auto bg-[#fefcf8]"
+        className="overflow-auto bg-[#faf7ff]"
         style={{ maxHeight: '600px' }}
       >
         <div ref={containerRef} style={{ minHeight: '200px' }} />
