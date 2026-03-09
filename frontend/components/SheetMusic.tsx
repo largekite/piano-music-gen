@@ -242,6 +242,12 @@ export default function SheetMusic({
 
     async function render() {
       const VF = await import('vexflow');
+
+      // VexFlow 5 loads music fonts (Bravura, Academico) asynchronously.
+      // We must wait for them before rendering, otherwise glyph metrics are
+      // estimated and stems disconnect from note heads.
+      await document.fonts.ready;
+
       if (cancelled || !container) return;
 
       // Clear previous render

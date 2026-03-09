@@ -201,7 +201,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
             ? note.duration - (offset - note.time)
             : note.duration;
 
-          const vel = (note.velocity || 80) / 127;
+          const vel = (note.velocity ?? 80) / 127;
 
           samplerRef.current?.triggerAttackRelease(
             Tone.Frequency(note.midi, 'midi').toNote(),
@@ -262,7 +262,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
           const noteDur = note.time < newProgress
             ? note.duration - (newProgress - note.time)
             : note.duration;
-          const vel = (note.velocity || 80) / 127;
+          const vel = (note.velocity ?? 80) / 127;
           samplerRef.current?.triggerAttackRelease(
             Tone.Frequency(note.midi, 'midi').toNote(),
             Math.max(0.01, noteDur),
@@ -309,7 +309,7 @@ export default function MidiPlayer({ midiUrl, filename, fileId, editable = false
             midi: n.midi,
             time: n.time,
             duration: n.duration,
-            velocity: n.velocity || 80,
+            velocity: n.velocity ?? 80,
           })),
           tempo,
         }),
