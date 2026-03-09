@@ -17,12 +17,10 @@ interface NoteEvent {
 
 interface FeedbackItem {
   expected: NoteEvent;
-  played: number | null; // midi number detected, or null if missed
+  played: number | null;
   correct: boolean;
   timestamp: number;
 }
-
-// ── Pitch detection via autocorrelation ─────────────────────────
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -37,15 +35,13 @@ function frequencyToMidi(freq: number): number {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function autoCorrelate(buf: any, sampleRate: number): number {
-  // Find a good signal level
   let rms = 0;
   for (let i = 0; i < buf.length; i++) {
     rms += buf[i] * buf[i];
   }
   rms = Math.sqrt(rms / buf.length);
-  if (rms < 0.01) return -1; // too quiet
+  if (rms < 0.01) return -1;
 
-  // Trim silence from edges
   let r1 = 0;
   let r2 = buf.length - 1;
   const threshold = 0.2;
@@ -59,7 +55,6 @@ function autoCorrelate(buf: any, sampleRate: number): number {
   const trimmed = buf.slice(r1, r2);
   const size = trimmed.length;
 
-  // Autocorrelation
   const c = new Float32Array(size);
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size - i; j++) {
@@ -67,7 +62,6 @@ function autoCorrelate(buf: any, sampleRate: number): number {
     }
   }
 
-  // Find first dip then first peak after it
   let d = 0;
   while (d < size && c[d] > c[d + 1]) d++;
 
@@ -82,7 +76,6 @@ function autoCorrelate(buf: any, sampleRate: number): number {
 
   if (maxPos <= 0) return -1;
 
-  // Parabolic interpolation for better precision
   const y1 = c[maxPos - 1] || 0;
   const y2 = c[maxPos];
   const y3 = c[maxPos + 1] || 0;
@@ -91,8 +84,6 @@ function autoCorrelate(buf: any, sampleRate: number): number {
 
   return sampleRate / period;
 }
-
-// ── Component ───────────────────────────────────────────────────
 
 export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
   const [isListening, setIsListening] = useState(false);
@@ -113,17 +104,14 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
   const holdCountRef = useRef(0);
   const lastDetectedRef = useRef<number | null>(null);
 
-  // Sort notes by time and build the sequence to practice
   const noteSequence: NoteEvent[] = (() => {
     const beatsPerSecond = tempo / 60;
     const sorted = [...notes].sort((a, b) => a.time - b.time);
-
-    // Group notes at the same time (chords) — for now just take single notes
     const seq: NoteEvent[] = [];
     let lastBeat = -1;
     for (const n of sorted) {
       const beat = Math.round(n.time * beatsPerSecond * 4) / 4;
-      if (beat === lastBeat) continue; // skip chord duplicates for simplicity
+      if (beat === lastBeat) continue;
       seq.push({
         midi: n.midi,
         beat,
@@ -182,7 +170,6 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
     }
   }, []);
 
-  // Detection loop — runs continuously while listening
   useEffect(() => {
     if (!isListening || !analyserRef.current || !bufRef.current) return;
 
@@ -197,12 +184,10 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
 
       if (freq > 0) {
         const midi = frequencyToMidi(freq);
-        // Only accept piano range
         if (midi >= 21 && midi <= 108) {
           setDetectedFreq(Math.round(freq * 10) / 10);
           setDetectedMidi(midi);
 
-          // Require stable detection (same note for a few frames)
           if (midi === lastDetectedRef.current) {
             holdCountRef.current++;
           } else {
@@ -210,10 +195,9 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
             lastDetectedRef.current = midi;
           }
 
-          // After 3 consistent frames (~100ms), register as a played note
           if (holdCountRef.current === 3 && currentNote && autoAdvance) {
             const correct = midi === currentNote.midi ||
-              midi === currentNote.midi + 12 || midi === currentNote.midi - 12; // allow octave
+              midi === currentNote.midi + 12 || midi === currentNote.midi - 12;
             const item: FeedbackItem = {
               expected: currentNote,
               played: midi,
@@ -243,7 +227,6 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
     };
   }, [isListening, currentNote, autoAdvance]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => { stopListening(); };
   }, [stopListening]);
@@ -253,10 +236,12 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
   const accuracy = totalPlayed > 0 ? Math.round((correctCount / totalPlayed) * 100) : 0;
   const isDone = currentNoteIndex >= noteSequence.length && noteSequence.length > 0;
 
+  const isNoteCorrect = (detected: number, expected: number) =>
+    detected === expected || detected === expected + 12 || detected === expected - 12;
+
   const handleManualCheck = () => {
     if (!currentNote || detectedMidi === null) return;
-    const correct = detectedMidi === currentNote.midi ||
-      detectedMidi === currentNote.midi + 12 || detectedMidi === currentNote.midi - 12;
+    const correct = isNoteCorrect(detectedMidi, currentNote.midi);
     setFeedback(prev => [...prev, {
       expected: currentNote,
       played: detectedMidi,
@@ -290,41 +275,41 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
 
   if (notes.length === 0) {
     return (
-      <div className="bg-amber-50 rounded-lg border border-amber-200 p-4 text-center text-amber-700 text-sm">
-        No notes to practice. Generate or compose some music first.
+      <div className="rounded-2xl bg-warm-100 border border-warm-200 p-6 text-center text-warm-600 text-sm">
+        No notes to practice yet. Compose or generate some music first!
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b bg-gradient-to-r from-indigo-50 to-purple-50 flex items-center justify-between flex-wrap gap-2">
+      <div className="px-5 py-4 border-b border-warm-100 bg-gradient-to-r from-plum-50 to-warm-50 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h3 className="font-bold text-gray-800 text-sm">Practice Mode</h3>
-          <p className="text-xs text-gray-500">Play the notes on your piano — the mic listens and checks each note</p>
+          <h3 className="font-bold text-stone-700 text-sm">Practice Mode</h3>
+          <p className="text-xs text-stone-400">Play each note on your piano &mdash; we'll listen and let you know!</p>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer">
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5 text-xs text-stone-500 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={autoAdvance}
               onChange={e => setAutoAdvance(e.target.checked)}
-              className="accent-purple-600"
+              className="accent-plum-500 rounded"
             />
             Auto-advance
           </label>
           {!isListening ? (
             <button
               onClick={startListening}
-              className="px-4 py-1.5 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition"
+              className="px-4 py-2 text-sm font-semibold bg-plum-500 text-white rounded-xl hover:bg-plum-600 active:scale-95 transition-all shadow-sm"
             >
               Start Practice
             </button>
           ) : (
             <button
               onClick={stopListening}
-              className="px-4 py-1.5 text-sm font-medium bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              className="px-4 py-2 text-sm font-semibold bg-coral-500 text-white rounded-xl hover:bg-coral-600 active:scale-95 transition-all"
             >
               Stop
             </button>
@@ -333,134 +318,136 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
       </div>
 
       {micError && (
-        <div className="px-4 py-2 bg-red-50 border-b border-red-200 text-red-700 text-sm">
+        <div className="px-5 py-3 bg-coral-50 border-b border-coral-200 text-coral-600 text-sm">
           {micError}
         </div>
       )}
 
       {isListening && (
-        <div className="p-4 space-y-4">
-          {/* Current note to play */}
+        <div className="p-5 space-y-5">
+          {/* Current note prompt */}
           {!isDone && currentNote ? (
-            <div className="flex items-center gap-6">
-              {/* Expected note */}
+            <div className="flex items-center gap-8 justify-center py-4">
+              {/* Expected */}
               <div className="text-center">
-                <div className="text-xs text-gray-500 mb-1">Play this note</div>
-                <div className="text-4xl font-bold text-indigo-700">{currentNote.name}</div>
-                <div className="text-xs text-gray-400 mt-1">
-                  Note {currentNoteIndex + 1} of {noteSequence.length}
+                <div className="text-xs text-stone-400 mb-2 uppercase tracking-wide font-medium">Play</div>
+                <div className="w-24 h-24 rounded-2xl bg-plum-50 border-2 border-plum-200 flex items-center justify-center">
+                  <span className="text-3xl font-bold text-plum-500">{currentNote.name}</span>
+                </div>
+                <div className="text-xs text-stone-400 mt-2">
+                  {currentNoteIndex + 1} / {noteSequence.length}
                 </div>
               </div>
 
               {/* Arrow */}
-              <div className="text-2xl text-gray-300">→</div>
+              <div className="text-stone-300">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+              </div>
 
-              {/* Detected note */}
-              <div className="text-center min-w-[100px]">
-                <div className="text-xs text-gray-500 mb-1">Detected</div>
+              {/* Detected */}
+              <div className="text-center">
+                <div className="text-xs text-stone-400 mb-2 uppercase tracking-wide font-medium">Heard</div>
                 {detectedMidi !== null ? (
-                  <>
-                    <div className={`text-4xl font-bold ${
-                      detectedMidi === currentNote.midi ||
-                      detectedMidi === currentNote.midi + 12 ||
-                      detectedMidi === currentNote.midi - 12
-                        ? 'text-green-600'
-                        : 'text-red-500'
+                  <div className={`w-24 h-24 rounded-2xl border-2 flex flex-col items-center justify-center transition-all ${
+                    isNoteCorrect(detectedMidi, currentNote.midi)
+                      ? 'bg-mint-50 border-mint-300'
+                      : 'bg-coral-50 border-coral-300'
+                  }`}>
+                    <span className={`text-3xl font-bold ${
+                      isNoteCorrect(detectedMidi, currentNote.midi) ? 'text-mint-500' : 'text-coral-500'
                     }`}>
                       {midiToName(detectedMidi)}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1">{detectedFreq} Hz</div>
-                  </>
+                    </span>
+                    <span className="text-xs text-stone-400 mt-0.5">{detectedFreq} Hz</span>
+                  </div>
                 ) : (
-                  <div className="text-2xl text-gray-300">...</div>
+                  <div className="w-24 h-24 rounded-2xl bg-warm-50 border-2 border-dashed border-warm-200 flex items-center justify-center">
+                    <span className="text-stone-300 text-sm">Listening...</span>
+                  </div>
                 )}
               </div>
 
-              {/* Manual controls */}
-              {!autoAdvance && (
-                <div className="flex flex-col gap-1">
+              {/* Controls */}
+              <div className="flex flex-col gap-2">
+                {!autoAdvance && (
                   <button
                     onClick={handleManualCheck}
                     disabled={detectedMidi === null}
-                    className="px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition disabled:opacity-40"
+                    className="px-4 py-2 text-xs font-semibold bg-plum-100 text-plum-600 rounded-lg hover:bg-plum-200 transition disabled:opacity-40"
                   >
                     Check
                   </button>
-                  <button
-                    onClick={handleSkip}
-                    className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
-                  >
-                    Skip
-                  </button>
-                </div>
-              )}
-
-              {autoAdvance && (
+                )}
                 <button
                   onClick={handleSkip}
-                  className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition"
+                  className="px-4 py-2 text-xs font-medium bg-warm-100 text-stone-500 rounded-lg hover:bg-warm-200 transition"
                 >
                   Skip
                 </button>
-              )}
+              </div>
             </div>
           ) : isDone ? (
-            <div className="text-center py-4">
-              <div className="text-2xl font-bold text-green-600 mb-2">Practice Complete!</div>
-              <div className="text-gray-600">
-                Accuracy: <span className="font-bold">{accuracy}%</span> ({correctCount}/{totalPlayed} correct)
+            <div className="text-center py-8">
+              <div className="w-16 h-16 rounded-full bg-mint-100 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-mint-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
               </div>
+              <h3 className="text-xl font-bold text-stone-700 mb-1">Great job!</h3>
+              <p className="text-stone-500">
+                You scored <span className="font-bold text-plum-500">{accuracy}%</span> accuracy ({correctCount}/{totalPlayed} correct)
+              </p>
               <button
                 onClick={handleRestart}
-                className="mt-3 px-4 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                className="mt-4 px-5 py-2.5 text-sm font-semibold bg-plum-500 text-white rounded-xl hover:bg-plum-600 active:scale-95 transition-all"
               >
                 Try Again
               </button>
             </div>
           ) : null}
 
-          {/* Progress bar */}
-          {noteSequence.length > 0 && (
+          {/* Progress */}
+          {noteSequence.length > 0 && !isDone && (
             <div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-warm-100 rounded-full h-2 overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all"
+                  className="bg-gradient-to-r from-plum-400 to-plum-500 h-2 rounded-full transition-all"
                   style={{ width: `${(currentNoteIndex / noteSequence.length) * 100}%` }}
                 />
               </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-stone-400 mt-1.5">
                 <span>{accuracy}% accuracy</span>
                 <span>{currentNoteIndex}/{noteSequence.length} notes</span>
               </div>
             </div>
           )}
 
-          {/* Recent feedback */}
+          {/* Recent feedback pills */}
           {feedback.length > 0 && (
-            <div className="border-t pt-3">
-              <h4 className="text-xs font-medium text-gray-500 mb-2">Recent Results</h4>
+            <div className="border-t border-warm-100 pt-4">
+              <h4 className="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">History</h4>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                 {feedback.slice(-30).map((item, i) => (
                   <div
                     key={i}
-                    className={`px-2 py-1 rounded text-xs font-medium ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
                       item.correct
-                        ? 'bg-green-100 text-green-700'
+                        ? 'bg-mint-100 text-mint-500'
                         : item.played === null
-                          ? 'bg-gray-100 text-gray-500'
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-warm-100 text-stone-400'
+                          : 'bg-coral-100 text-coral-500'
                     }`}
                     title={
                       item.correct
-                        ? `${item.expected.name} ✓`
+                        ? `${item.expected.name} correct`
                         : item.played !== null
                           ? `Expected ${item.expected.name}, played ${midiToName(item.played)}`
                           : `${item.expected.name} (skipped)`
                     }
                   >
-                    {item.correct ? '✓' : item.played !== null ? '✗' : '–'} {item.expected.name}
+                    {item.expected.name}
                     {!item.correct && item.played !== null && (
-                      <span className="opacity-60"> ({midiToName(item.played)})</span>
+                      <span className="opacity-60 ml-1">({midiToName(item.played)})</span>
                     )}
                   </div>
                 ))}
@@ -470,12 +457,20 @@ export default function PracticeMode({ notes, tempo }: PracticeModeProps) {
         </div>
       )}
 
-      {/* Idle state info */}
+      {/* Idle */}
       {!isListening && !micError && (
-        <div className="p-4 text-center text-gray-500 text-sm">
-          <p>{noteSequence.length} notes in this piece. Click <strong>Start Practice</strong> to begin.</p>
-          <p className="text-xs mt-1 text-gray-400">
-            Your microphone will listen for piano notes and check them against the sheet music.
+        <div className="p-8 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-plum-50 flex items-center justify-center mx-auto mb-3">
+            <svg className="w-7 h-7 text-plum-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+          </div>
+          <p className="text-stone-600 text-sm font-medium">{noteSequence.length} notes ready to practice</p>
+          <p className="text-xs text-stone-400 mt-1">
+            Click Start Practice, then play each note on your piano.
           </p>
         </div>
       )}

@@ -51,7 +51,7 @@ export default function FilesPage() {
 
     try {
       await filesApi.deleteFile(fileId);
-      loadFiles(); // Reload the list
+      loadFiles();
     } catch (err) {
       alert('Failed to delete file');
     }
@@ -64,131 +64,153 @@ export default function FilesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-warm-50 via-white to-coral-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-6">
+      <header className="bg-white/70 backdrop-blur-md border-b border-warm-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                📊 Generated Files
-              </h1>
-              <p className="text-gray-600 mt-1">Browse and manage your generated MIDI files</p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-plum-400 to-plum-500 flex items-center justify-center shadow-sm">
+                <svg className="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-stone-800">My Files</h1>
+                <p className="text-xs text-stone-400">Your generated MIDI collection</p>
+              </div>
             </div>
             <Link
               href="/"
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition"
+              className="px-4 py-2 rounded-xl text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-warm-100 transition-all"
             >
-              ← Back to Generator
+              Back to Studio
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Search Bar */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
+      {/* Main */}
+      <main className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Search */}
+        <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-4 mb-6 shadow-sm">
           <div className="flex gap-2">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search files..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+              placeholder="Search your files..."
+              className="flex-1 px-4 py-2.5 border border-warm-200 rounded-xl bg-white focus:ring-2 focus:ring-coral-300 focus:border-transparent outline-none text-sm"
             />
             <button
               onClick={handleSearch}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2 rounded-lg transition"
+              className="px-5 py-2.5 rounded-xl bg-coral-400 hover:bg-coral-500 text-white font-semibold text-sm transition-all active:scale-95 shadow-sm"
             >
-              🔍 Search
+              Search
             </button>
           </div>
         </div>
 
-        {/* Loading State */}
+        {/* Loading */}
         {isLoading && (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center space-x-2">
-              <div className="w-4 h-4 bg-purple-600 rounded-full animate-bounce"></div>
-              <span className="text-gray-600">Loading files...</span>
+          <div className="text-center py-16">
+            <div className="flex justify-center gap-2 mb-3">
+              <div className="w-2.5 h-2.5 bg-coral-400 rounded-full anim-bounce-1" />
+              <div className="w-2.5 h-2.5 bg-warm-400 rounded-full anim-bounce-2" />
+              <div className="w-2.5 h-2.5 bg-coral-400 rounded-full anim-bounce-3" />
             </div>
+            <span className="text-sm text-stone-400">Loading your files...</span>
           </div>
         )}
 
-        {/* Error State */}
+        {/* Error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <p className="text-red-800">{error}</p>
+          <div className="rounded-2xl bg-coral-50 border border-coral-200 p-6 text-center">
+            <p className="text-coral-600 text-sm">{error}</p>
           </div>
         )}
 
-        {/* Files Grid */}
+        {/* Files grid */}
         {!isLoading && !error && files.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {files.map((file) => (
-              <div key={file.file_id} className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-bold text-gray-800 truncate flex-1">{file.filename}</h3>
+              <div
+                key={file.file_id}
+                className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-5 hover:shadow-md hover:border-warm-300 transition-all group"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-stone-700 truncate text-sm">{file.filename}</h3>
+                    <div className="flex gap-3 text-xs text-stone-400 mt-1">
+                      <span>{formatFileSize(file.file_size)}</span>
+                      <span>{new Date(file.created_at * 1000).toLocaleDateString()}</span>
+                    </div>
+                  </div>
                   <button
                     onClick={() => handleDelete(file.file_id)}
-                    className="text-red-600 hover:text-red-800 ml-2"
+                    className="text-stone-300 hover:text-coral-500 transition ml-2 opacity-0 group-hover:opacity-100"
                     title="Delete"
                   >
-                    🗑️
+                    <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
                   </button>
-                </div>
-
-                <div className="text-sm text-gray-600 space-y-1">
-                  <p>Size: {formatFileSize(file.file_size)}</p>
-                  <p>Created: {new Date(file.created_at * 1000).toLocaleDateString()}</p>
                 </div>
 
                 <a
                   href={filesApi.getDownloadUrl(file.file_id)}
                   download={file.filename}
-                  className="mt-4 block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-4 rounded-lg text-center transition"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-warm-100 hover:bg-coral-100 text-stone-600 hover:text-coral-600 font-medium text-sm transition-all"
                 >
-                  ⬇️ Download
+                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                  Download
                 </a>
               </div>
             ))}
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Empty */}
         {!isLoading && !error && files.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">No files found</p>
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-warm-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-warm-400" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
+              </svg>
+            </div>
+            <p className="text-stone-500 font-medium">No files yet</p>
+            <p className="text-xs text-stone-400 mt-1 mb-4">Generate your first piece to see it here!</p>
             <Link
               href="/"
-              className="mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition"
+              className="inline-block px-5 py-2.5 rounded-xl bg-coral-400 hover:bg-coral-500 text-white font-semibold text-sm transition-all active:scale-95 shadow-sm"
             >
-              Generate Your First File
+              Create Music
             </Link>
           </div>
         )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-8 flex justify-center gap-2">
+          <div className="mt-8 flex justify-center items-center gap-2">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-warm-100 hover:bg-warm-200 text-stone-600 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              ← Previous
+              Previous
             </button>
-            <span className="px-4 py-2">
-              Page {page} of {totalPages}
+            <span className="px-4 py-2 text-sm text-stone-400">
+              {page} of {totalPages}
             </span>
             <button
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-warm-100 hover:bg-warm-200 text-stone-600 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Next →
+              Next
             </button>
           </div>
         )}

@@ -22,7 +22,7 @@ function ComposeFromScratch() {
 
   const duration = notes.length > 0
     ? Math.max(...notes.map(n => n.time + n.duration)) + 4
-    : 32; // Default 8 bars at 120bpm
+    : 32;
 
   const handleSaveNew = async () => {
     if (notes.length === 0) return;
@@ -32,7 +32,6 @@ function ComposeFromScratch() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-      // First generate a minimal MIDI to get a file ID, then update it with our notes
       const genResponse = await fetch(`${apiUrl}/api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,7 +50,6 @@ function ComposeFromScratch() {
       if (!genResponse.ok) throw new Error('Failed to create file');
       const job = await genResponse.json();
 
-      // Wait for generation to complete
       let fileId = '';
       let filename = '';
       for (let i = 0; i < 20; i++) {
@@ -68,7 +66,6 @@ function ComposeFromScratch() {
 
       if (!fileId) throw new Error('Timed out');
 
-      // Now overwrite with our composed notes
       const editResponse = await fetch(`${apiUrl}/api/files/${fileId}/notes`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -96,33 +93,40 @@ function ComposeFromScratch() {
     ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/files/${saveResult.fileId}/download`
     : null;
 
+  const viewModes = [
+    { key: 'piano-roll' as const, label: 'Piano Roll', icon: '\u2630' },
+    { key: 'sheet' as const, label: 'Sheet Music', icon: '\u266B' },
+    { key: 'practice' as const, label: 'Practice', icon: '\u2022' },
+  ];
+
   return (
-    <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow p-4">
-        <div className="flex items-center justify-between mb-3">
+    <div className="space-y-5">
+      {/* Compose header card */}
+      <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-1">
           <div>
-            <h2 className="font-bold text-lg text-gray-800">Compose from Scratch</h2>
-            <p className="text-sm text-gray-500">
-              Use the piano roll editor below. Select the Draw tool, set snap grid, and click/drag to place notes.
+            <h2 className="font-bold text-lg text-warm-600">Your Canvas</h2>
+            <p className="text-sm text-stone-500">
+              Draw notes on the piano roll, view as sheet music, or practice along.
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-sm">
-              <label htmlFor="scratch-tempo" className="text-gray-600">Tempo:</label>
+            <div className="flex items-center gap-1.5 text-sm">
+              <label htmlFor="scratch-tempo" className="text-stone-500">Tempo</label>
               <input
                 id="scratch-tempo"
                 type="number"
                 min="40" max="300"
                 value={tempo}
                 onChange={e => setTempo(Math.max(40, Math.min(300, parseInt(e.target.value) || 120)))}
-                className="w-16 px-2 py-1 border rounded text-sm"
+                className="w-16 px-2 py-1.5 border border-warm-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-coral-300 focus:border-transparent outline-none"
               />
-              <span className="text-gray-500">BPM</span>
+              <span className="text-stone-400 text-xs">BPM</span>
             </div>
             <button
               onClick={handleSaveNew}
               disabled={isSaving || notes.length === 0}
-              className="px-4 py-2 rounded-lg font-medium text-sm bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition disabled:opacity-50"
+              className="px-4 py-2 rounded-xl font-semibold text-sm bg-coral-400 text-white hover:bg-coral-500 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
             >
               {isSaving ? 'Saving...' : 'Save as MIDI'}
             </button>
@@ -130,37 +134,37 @@ function ComposeFromScratch() {
         </div>
 
         {saveResult && downloadUrl && (
-          <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
-            <span className="text-green-700 text-sm">Saved! {saveResult.filename}</span>
+          <div className="mt-3 p-3 bg-mint-50 border border-mint-200 rounded-xl flex items-center justify-between">
+            <span className="text-mint-500 text-sm font-medium">Saved! {saveResult.filename}</span>
             <a
               href={downloadUrl}
               download={saveResult.filename}
-              className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
+              className="text-sm px-3 py-1.5 bg-mint-400 text-white rounded-lg hover:bg-mint-500 transition font-medium"
             >
-              Download MIDI
+              Download
             </a>
           </div>
         )}
       </div>
 
-      {/* View Toggle */}
-      <div className="flex gap-2">
-        {(['piano-roll', 'sheet', 'practice'] as const).map((mode) => (
+      {/* View mode pills */}
+      <div className="flex gap-1.5 bg-warm-100 rounded-xl p-1 w-fit">
+        {viewModes.map(({ key, label, icon }) => (
           <button
-            key={mode}
-            onClick={() => setViewMode(mode)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-              viewMode === mode
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            key={key}
+            onClick={() => setViewMode(key)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              viewMode === key
+                ? 'bg-white text-coral-500 shadow-sm'
+                : 'text-stone-500 hover:text-stone-700'
             }`}
           >
-            {mode === 'piano-roll' ? 'Piano Roll' : mode === 'sheet' ? 'Sheet Music' : 'Practice'}
+            <span className="mr-1.5">{icon}</span>{label}
           </button>
         ))}
       </div>
 
-      {/* Piano Roll Editor */}
+      {/* Editor / View */}
       {viewMode === 'piano-roll' && (
         <PianoRoll
           notes={notes}
@@ -172,7 +176,6 @@ function ComposeFromScratch() {
         />
       )}
 
-      {/* Sheet Music View */}
       {viewMode === 'sheet' && (
         <SheetMusic
           notes={notes}
@@ -185,12 +188,11 @@ function ComposeFromScratch() {
         />
       )}
 
-      {/* Practice Mode */}
       {viewMode === 'practice' && (
         <PracticeMode notes={notes} tempo={tempo} />
       )}
 
-      {/* Playback for composed notes */}
+      {/* Playback */}
       {notes.length > 0 && (
         <ScratchPlayer
           notes={notes}
@@ -205,7 +207,7 @@ function ComposeFromScratch() {
   );
 }
 
-// Lightweight player for scratch compositions (no MIDI file needed)
+// Lightweight player for scratch compositions
 interface ScratchPlayerProps {
   notes: PianoNote[];
   tempo: number;
@@ -281,26 +283,38 @@ function ScratchPlayer({ notes, tempo, isPlaying, progress, onIsPlayingChange, o
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
+    <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 p-4 flex items-center gap-4 shadow-sm">
       <button
         onClick={handlePlay}
-        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 px-5 rounded-lg shadow transition"
+        className="w-12 h-12 rounded-full bg-coral-400 hover:bg-coral-500 active:scale-90 text-white flex items-center justify-center transition-all shadow-md"
       >
-        {isPlaying ? 'Stop' : 'Play'}
+        {isPlaying ? (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <rect x="3" y="2" width="4" height="12" rx="1" />
+            <rect x="9" y="2" width="4" height="12" rx="1" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M4 2.5v11l9-5.5z" />
+          </svg>
+        )}
       </button>
       <div className="flex-1">
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-warm-200 rounded-full h-2 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all"
+            className="bg-gradient-to-r from-coral-400 to-warm-400 h-2 rounded-full transition-all"
             style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%` }}
           />
         </div>
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <div className="flex justify-between text-xs text-stone-400 mt-1.5">
           <span>{formatTime(progress)}</span>
           <span>{formatTime(duration)}</span>
         </div>
       </div>
-      <span className="text-xs text-gray-500">{notes.length} notes | {tempo} BPM</span>
+      <div className="text-xs text-stone-400 text-right leading-relaxed">
+        <div className="font-medium text-stone-600">{notes.length} notes</div>
+        <div>{tempo} BPM</div>
+      </div>
     </div>
   );
 }
@@ -319,62 +333,79 @@ export default function Home() {
     isConnected,
   } = useGeneration();
 
+  const tabs = [
+    { key: 'generate' as const, label: 'Generate', desc: 'AI-powered' },
+    { key: 'compose' as const, label: 'Compose', desc: 'Free-form' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-warm-50 via-white to-coral-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Piano Music Studio
-              </h1>
-              <p className="text-gray-600 mt-1">Generate, compose, visualize, and edit piano music</p>
+      <header className="bg-white/70 backdrop-blur-md border-b border-warm-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-coral-400 to-warm-400 flex items-center justify-center shadow-sm anim-float">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                  <rect x="2" y="8" width="3" height="12" rx="0.5" />
+                  <rect x="6" y="8" width="3" height="12" rx="0.5" />
+                  <rect x="10" y="8" width="3" height="12" rx="0.5" />
+                  <rect x="14" y="8" width="3" height="12" rx="0.5" />
+                  <rect x="18" y="8" width="3" height="12" rx="0.5" />
+                  <rect x="4" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.25)" />
+                  <rect x="8" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.25)" />
+                  <rect x="15" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.25)" />
+                  <rect x="19" y="8" width="2" height="7" rx="0.5" fill="rgba(0,0,0,0.25)" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-stone-800">
+                  Piano Studio
+                </h1>
+                <p className="text-xs text-stone-400 hidden sm:block">Create, play, and practice</p>
+              </div>
             </div>
 
-            {/* Connection Status */}
-            <div className="mt-4 md:mt-0">
-              <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${
-                isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            <div className="flex items-center gap-3">
+              <Link
+                href="/files"
+                className="px-4 py-2 rounded-xl text-sm font-medium text-stone-500 hover:text-stone-700 hover:bg-warm-100 transition-all"
+              >
+                My Files
+              </Link>
+              <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+                isConnected
+                  ? 'bg-mint-100 text-mint-500'
+                  : 'bg-coral-100 text-coral-500'
               }`}>
-                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-                <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+                <div className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-mint-400' : 'bg-coral-400'} animate-pulse`} />
+                {isConnected ? 'Online' : 'Offline'}
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Tab Navigation */}
-        <div className="flex space-x-2 mb-6 border-b">
-          <button
-            onClick={() => setActiveTab('generate')}
-            className={`px-6 py-3 font-medium transition border-b-2 ${
-              activeTab === 'generate'
-                ? 'border-purple-600 text-purple-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Generate Music
-          </button>
-          <button
-            onClick={() => setActiveTab('compose')}
-            className={`px-6 py-3 font-medium transition border-b-2 ${
-              activeTab === 'compose'
-                ? 'border-purple-600 text-purple-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Compose from Scratch
-          </button>
-          <Link
-            href="/files"
-            className="px-6 py-3 font-medium transition border-b-2 border-transparent text-gray-500 hover:text-gray-700"
-          >
-            Generated Files
-          </Link>
+      {/* Main */}
+      <main className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Tab selector */}
+        <div className="flex gap-3 mb-8">
+          {tabs.map(({ key, label, desc }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className={`flex-1 sm:flex-none px-6 py-3.5 rounded-2xl text-sm font-semibold transition-all ${
+                activeTab === key
+                  ? 'bg-white text-stone-800 shadow-md border border-warm-200'
+                  : 'text-stone-400 hover:text-stone-600 hover:bg-white/50'
+              }`}
+            >
+              {label}
+              {activeTab === key && (
+                <span className="ml-2 text-xs font-normal text-stone-400">{desc}</span>
+              )}
+            </button>
+          ))}
         </div>
 
         {/* Generate Tab */}
@@ -394,13 +425,13 @@ export default function Home() {
             />
 
             {result && !isGenerating && (
-              <div>
+              <div className="space-y-4">
                 <ResultCard result={result} />
                 <button
                   onClick={reset}
-                  className="mt-4 w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg transition"
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm bg-warm-100 hover:bg-warm-200 text-stone-600 transition-all"
                 >
-                  Generate Another
+                  Create Another
                 </button>
               </div>
             )}
@@ -414,9 +445,9 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-12">
-        <div className="container mx-auto px-4 py-6 text-center text-gray-600 text-sm">
-          <p>Piano Music Studio - Generate, Compose, Visualize & Edit</p>
+      <footer className="border-t border-warm-200 mt-16">
+        <div className="container mx-auto px-4 py-6 text-center text-stone-400 text-xs">
+          <p>Piano Music Studio &mdash; made with care</p>
         </div>
       </footer>
     </div>

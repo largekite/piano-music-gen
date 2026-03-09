@@ -715,17 +715,19 @@ export default function SheetMusic({
 
   if (notes.length === 0) {
     return (
-      <div className="bg-amber-50 rounded-lg border border-amber-200 p-8 text-center text-amber-700">
+      <div className="rounded-2xl bg-warm-100 border border-warm-200 p-8 text-center text-warm-600 text-sm">
         <p>No notes to display. Generate or compose some music first.</p>
       </div>
     );
   }
 
+  const smallSelectClass = "px-2 py-1 border border-warm-200 rounded-lg text-xs bg-white text-stone-600 focus:ring-2 focus:ring-coral-300 focus:border-transparent outline-none";
+
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-      <div className="px-4 py-2 border-b bg-gray-50 flex items-center justify-between flex-wrap gap-2">
+    <div className="rounded-2xl bg-white/80 backdrop-blur border border-warm-200 shadow-sm overflow-hidden">
+      <div className="px-4 py-3 border-b border-warm-100 bg-warm-50 flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <h3 className="font-medium text-gray-700 text-sm">Sheet Music</h3>
+          <h3 className="font-semibold text-stone-700 text-sm">Sheet Music</h3>
           <button
             onClick={() => {
               const canvas = canvasRef.current;
@@ -735,7 +737,7 @@ export default function SheetMusic({
               link.href = canvas.toDataURL('image/png');
               link.click();
             }}
-            className="px-2 py-0.5 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"
+            className="px-2.5 py-1 text-xs bg-warm-200 hover:bg-warm-300 text-stone-600 rounded-lg transition font-medium"
             title="Download as PNG"
           >
             Download PNG
@@ -743,14 +745,13 @@ export default function SheetMusic({
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Key signature selector */}
-          <div className="flex items-center gap-1 text-sm">
-            <label htmlFor="key-sig-select" className="text-gray-500 text-xs">Key:</label>
+          <div className="flex items-center gap-1.5 text-sm">
+            <label htmlFor="key-sig-select" className="text-stone-400 text-xs">Key:</label>
             <select
               id="key-sig-select"
               value={activeKey}
               onChange={(e) => handleKeyChange(e.target.value as KeySignature)}
-              className="px-2 py-0.5 border rounded text-xs bg-white text-gray-700"
+              className={smallSelectClass}
             >
               <optgroup label="Major">
                 {ALL_MAJOR_KEYS.map(k => (
@@ -765,10 +766,9 @@ export default function SheetMusic({
             </select>
           </div>
 
-          {/* Transpose control */}
           {onNotesChange && (
-            <div className="flex items-center gap-1 text-sm">
-              <label htmlFor="transpose-select" className="text-gray-500 text-xs">Transpose to:</label>
+            <div className="flex items-center gap-1.5 text-sm">
+              <label htmlFor="transpose-select" className="text-stone-400 text-xs">Transpose:</label>
               <select
                 id="transpose-select"
                 value=""
@@ -778,9 +778,9 @@ export default function SheetMusic({
                     e.target.value = '';
                   }
                 }}
-                className="px-2 py-0.5 border rounded text-xs bg-white text-gray-700"
+                className={smallSelectClass}
               >
-                <option value="">Select key...</option>
+                <option value="">Select...</option>
                 <optgroup label="Major">
                   {ALL_MAJOR_KEYS.filter(k => k !== activeKey).map(k => (
                     <option key={k} value={k}>{k}</option>
@@ -795,8 +795,8 @@ export default function SheetMusic({
             </div>
           )}
 
-          <span className="text-xs text-gray-400">
-            {totalMeasures} measures | {quantized.length} notes
+          <span className="text-xs text-stone-400">
+            {totalMeasures} measures &middot; {quantized.length} notes
           </span>
         </div>
       </div>

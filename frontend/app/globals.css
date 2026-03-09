@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fffaf5;
+  --foreground: #2d2a26;
 }
 
 @theme inline {
@@ -10,17 +10,129 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-warm-50: #fffaf5;
+  --color-warm-100: #fff3e6;
+  --color-warm-200: #ffe4c9;
+  --color-warm-300: #ffd1a3;
+  --color-warm-400: #f5a623;
+  --color-warm-500: #e8912d;
+  --color-warm-600: #c97b1a;
+
+  --color-coral-50: #fff5f3;
+  --color-coral-100: #ffe8e3;
+  --color-coral-200: #ffc9bf;
+  --color-coral-300: #ff9e8f;
+  --color-coral-400: #ff7b68;
+  --color-coral-500: #f25c4a;
+  --color-coral-600: #d9453a;
+
+  --color-sky-50: #f0f8ff;
+  --color-sky-100: #dceefb;
+  --color-sky-200: #b3d9f7;
+  --color-sky-300: #79bff0;
+  --color-sky-400: #4fa8e8;
+  --color-sky-500: #3b8fd0;
+
+  --color-mint-50: #f0faf6;
+  --color-mint-100: #d8f3e8;
+  --color-mint-200: #a8e4ca;
+  --color-mint-300: #6ecfa5;
+  --color-mint-400: #3dba80;
+  --color-mint-500: #2a9d6a;
+
+  --color-plum-50: #faf5ff;
+  --color-plum-100: #f0e6ff;
+  --color-plum-200: #dbc5ff;
+  --color-plum-300: #c09dff;
+  --color-plum-400: #a678f5;
+  --color-plum-500: #8b5cf6;
+  --color-plum-600: #7243d9;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1a1816;
+    --foreground: #f5f0eb;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4c8bc;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8a99a;
+}
+
+/* Range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-track {
+  height: 6px;
+  border-radius: 99px;
+  background: #e8ddd3;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f25c4a;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  margin-top: -6px;
+}
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 99px;
+  background: #e8ddd3;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f25c4a;
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+/* Bounce animation for loading */
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.anim-bounce-1 { animation: gentle-bounce 1.2s ease-in-out infinite; }
+.anim-bounce-2 { animation: gentle-bounce 1.2s ease-in-out 0.15s infinite; }
+.anim-bounce-3 { animation: gentle-bounce 1.2s ease-in-out 0.3s infinite; }
+
+/* Piano key float animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+}
+.anim-float { animation: float 3s ease-in-out infinite; }
