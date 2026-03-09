@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useGeneration } from '@/lib/hooks/useGeneration';
 import GenerationForm from '@/components/GenerationForm';
 import ProgressDisplay from '@/components/ProgressDisplay';
@@ -16,6 +16,8 @@ function ComposeFromScratch() {
   const [saveResult, setSaveResult] = useState<{ fileId: string; filename: string } | null>(null);
   const [viewMode, setViewMode] = useState<'piano-roll' | 'sheet'>('piano-roll');
   const [keySignature, setKeySignature] = useState<KeySignature>('C major');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackTime, setPlaybackTime] = useState(0);
 
   const duration = notes.length > 0
     ? Math.max(...notes.map(n => n.time + n.duration)) + 4
@@ -162,6 +164,8 @@ function ComposeFromScratch() {
         <PianoRoll
           notes={notes}
           duration={duration}
+          currentTime={playbackTime}
+          isPlaying={isPlaying}
           editable={true}
           onNotesChange={setNotes}
         />
@@ -172,6 +176,8 @@ function ComposeFromScratch() {
         <SheetMusic
           notes={notes}
           tempo={tempo}
+          currentTime={playbackTime}
+          isPlaying={isPlaying}
           keySignature={keySignature}
           onNotesChange={setNotes}
           onKeySignatureChange={setKeySignature}
@@ -180,18 +186,46 @@ function ComposeFromScratch() {
 
       {/* Playback for composed notes */}
       {notes.length > 0 && (
-        <ScratchPlayer notes={notes} tempo={tempo} />
+        <ScratchPlayer
+          notes={notes}
+          tempo={tempo}
+          isPlaying={isPlaying}
+          progress={playbackTime}
+          onIsPlayingChange={setIsPlaying}
+          onProgressChange={setPlaybackTime}
+        />
       )}
     </div>
   );
 }
 
 // Lightweight player for scratch compositions (no MIDI file needed)
-function ScratchPlayer({ notes, tempo }: { notes: PianoNote[]; tempo: number }) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
+interface ScratchPlayerProps {
+  notes: PianoNote[];
+  tempo: number;
+  isPlaying: boolean;
+  progress: number;
+  onIsPlayingChange: (playing: boolean) => void;
+  onProgressChange: (time: number) => void;
+}
+
+function ScratchPlayer({ notes, tempo, isPlaying, progress, onIsPlayingChange, onProgressChange }: ScratchPlayerProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const synthRef = useRef<any>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const duration = Math.max(...notes.map(n => n.time + n.duration));
+
+  const cleanup = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    if (synthRef.current) {
+      synthRef.current.dispose();
+      synthRef.current = null;
+    }
+  };
 
   const handlePlay = async () => {
     const Tone = await import('tone');
@@ -200,8 +234,9 @@ function ScratchPlayer({ notes, tempo }: { notes: PianoNote[]; tempo: number }) 
     if (isPlaying) {
       Tone.Transport.stop();
       Tone.Transport.cancel();
-      setIsPlaying(false);
-      setProgress(0);
+      cleanup();
+      onIsPlayingChange(false);
+      onProgressChange(0);
       return;
     }
 
@@ -210,6 +245,7 @@ function ScratchPlayer({ notes, tempo }: { notes: PianoNote[]; tempo: number }) 
       oscillator: { type: 'fmtriangle' as const, modulationType: 'sine' as const, harmonicity: 3.01, modulationIndex: 14 },
       envelope: { attack: 0.005, decay: 0.3, sustain: 0.2, release: 1.5 },
     }).toDestination();
+    synthRef.current = synth;
 
     const now = Tone.now();
     notes.forEach(note => {
@@ -222,17 +258,16 @@ function ScratchPlayer({ notes, tempo }: { notes: PianoNote[]; tempo: number }) 
       );
     });
 
-    setIsPlaying(true);
+    onIsPlayingChange(true);
     const startTime = Tone.now();
 
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       const elapsed = Tone.now() - startTime;
-      setProgress(elapsed);
+      onProgressChange(elapsed);
       if (elapsed > duration + 0.5) {
-        clearInterval(interval);
-        setIsPlaying(false);
-        setProgress(0);
-        synth.dispose();
+        cleanup();
+        onIsPlayingChange(false);
+        onProgressChange(0);
       }
     }, 50);
   };
